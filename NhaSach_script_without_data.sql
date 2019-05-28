@@ -32,7 +32,7 @@ begin
 		address nvarchar(255),
 		username varchar(255),
 		password varchar(1000),
-		isAddmin bit
+		isAdmin bit
 	)
 end
 go
