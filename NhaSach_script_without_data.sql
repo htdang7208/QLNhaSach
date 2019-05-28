@@ -24,7 +24,7 @@ else
 begin
 	create table Customer
 	(
-		id varchar(20) not null primary key,	--CUS001/AD001
+		id int identity not null primary key,	--CUS001/AD001
 		firstName nvarchar(255),
 		lastName nvarchar(255),
 		phone varchar(50),
@@ -43,7 +43,7 @@ else
 begin
 	create table Product
 	(
-		id varchar(20) not null primary key,	--PRO001
+		id int identity not null primary key,	--PRO001
 		name nvarchar(50),
 		mainPrice float,
 		vicePrice float,
@@ -52,9 +52,11 @@ begin
 		author nvarchar(255),	
 		quantity int,
 		state bit	--tình trạng: còn hàng/hết hàng
+
 	)
 end
 go
+
 
 if OBJECT_ID('OrderDetail', 'U') is not null
 	drop table OrderDetail
@@ -62,15 +64,12 @@ else
 begin
 	create table OrderDetail
 	(
-		id varchar(20) not null primary key,	--ORD001
-		productId varchar(20),
+		id int identity not null primary key,	--ORD001
+		productId int,
 		quantity int
 	)
 end
 go
-
-alter table OrderDetail
-	add constraint FK_OrderDetail_Product foreign key(productId) references Product(id)
 
 if OBJECT_ID('Order', 'U') is not null
 	drop table [Order]
@@ -78,10 +77,10 @@ else
 begin
 	create table [Order]
 	(
-		id varchar(20) not null primary key,	--OR001
-		customerId varchar(20),
+		id int identity not null primary key,	--OR001
+		customerId int,
 		dateBought datetime,
-		orderDetailId varchar(20)
+		orderDetailId int
 	)
 end
 go
@@ -91,14 +90,18 @@ alter table [Order]
 alter table [Order]
 	add constraint FK_Order_OrderDetail foreign key(orderDetailId) references OrderDetail(id)
 
+
+alter table OrderDetail
+	add constraint FK_OrderDetail_Product foreign key(productId) references Product(id)
+
 if OBJECT_ID('InputInvoice', 'U') is not null
 	drop table InputInvoice
 else
 begin
 	create table InputInvoice
 	(
-		id varchar(20) not null primary key,	--INI001
-		productId varchar(20),
+		id int identity not null primary key,	--INI001
+		productId int,
 		quantity int
 	)
 end
@@ -107,15 +110,16 @@ go
 alter table InputInvoice
 	add constraint FK_InputInvoice_Product foreign key(productId) references Product(id)
 
+
 if OBJECT_ID('Receipt', 'U') is not null
 	drop table Receipt
 else
 begin
 	create table Receipt
 	(
-		id varchar(20) not null primary key,	--RE001
-		customerId varchar(20),
-		orderId varchar(20),
+		id int identity not null primary key,	--RE001
+		customerId int,
+		orderId int,
 		totalPrice float
 	)
 end
