@@ -1,0 +1,91 @@
+<table id="example" class="table table-striped table-bordered" style="width:100%">
+  <thead>
+    <tr>
+      <th>Tên</th>
+      <th>Số ĐT</th>
+      <th>AppID</th>
+      <th>Địa chỉ</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let row of listCustomer">
+      <td>{{row.lastName}} {{row.firstName}}</td>
+      <td>{{row.phone}}</td>
+      <td>{{row.id}}</td>
+      <td>{{row.address}}</td>
+      <td class="text-center">
+        <button type="button" class="btn btn-danger btn-sm mr-1" data-toggle="modal" (click)="removeCustomer(row.id)"
+          data-target="#remove"><i class="fa fa-trash"></i></button>
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" (click)="editCustomer(row.id)"
+          data-target="#edit"><i class="fa fa-edit"></i></button>
+      </td>
+    </tr>
+
+  </tbody>
+  <tfoot>
+    <tr>
+      <th>Tên</th>
+      <th>Số ĐT</th>
+      <th>AppID</th>
+      <th>Địa chỉ</th>
+      <th></th>
+    </tr>
+  </tfoot>
+</table>
+<!-- Edit Modal -->
+<div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+          {{ customer.id === undefined || customer.id === 0 ? 'Thêm Khách hàng mới' : 'Chỉnh sửa thông tin khách hàng'}}
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- ... -->
+
+        <form name="Form" class="col">
+          <div class="form-group row">
+            <div class="col-sm col-md mb-3 mb-md-0">
+              <input [(ngModel)]="customer.firstName" id="firstname" name="Firstname" type="text" class="form-control"
+                placeholder="First name" required /></div>
+            <div class="col-md">
+              <input [(ngModel)]="customer.lastName" name="Lastname" type="text" class="form-control"
+                placeholder="Last name" required /></div>
+          </div>
+          <div class="form-group row">
+            <div class="col-sm col-md mb-3 mb-md-0">
+              <input [(ngModel)]="customer.email" name="Email" type="email" class="form-control" placeholder="Email"
+                required /></div>
+            <div class="col-md">
+              <input [(ngModel)]="customer.phone" name="Phone" type="text" class="form-control" placeholder="Phone"
+                required /></div>
+          </div>
+          <div class="form-group row">
+            <div class="col-sm col-md mb-3 mb-md-0">
+              <input [(ngModel)]="customer.address" name="Address" type="text" class="form-control"
+                placeholder="Address" required /></div>
+          </div>
+          <div class="form-group row">
+            <div class="col-sm col-md mb-3 mb-md-0">
+              <input [(ngModel)]="customer.password" name="Password" type="password" class="form-control"
+                placeholder="Pasword" required /></div>
+            <div class="col-md">
+              <input name="RetypePassword" type="password" class="form-control" placeholder="Retype pasword" required />
+            </div>
+          </div>
+        </form>
+
+        <!-- ... -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>

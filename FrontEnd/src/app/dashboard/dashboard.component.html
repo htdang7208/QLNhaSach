@@ -1,0 +1,42 @@
+<header class="bg-dark fixed-top">
+  <div class="container text-white">
+    <div class="row align-items-center">
+      <div class="col-md-auto px-0 py-2">
+        <h1>BOOK Store Admin</h1>
+      </div>
+      <div class="col-md-3 px-0 py-2 ml-auto">
+        <div class="row align-items-center mx-0">
+          <div class="col-md text-right">
+            <p class="m-0">Chào&#44;</p>
+            <p class="m-0"><strong>Cao Phương Đức</strong></p>
+          </div>
+          <div class="col-md-4">
+            <img class="rounded-circle img-thumbnail" src="Co3La_75.jpg" alt="Co3La" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="container-fluid" style="margin-top: 7vw;">
+  <div class="row">
+    <div class="col-md-2">
+      <nav class="list-group">
+        <p class="list-group-item list-group-item-action disabled">
+          <small>Thông tin BOOK Store</small></p>
+        <a routerLink='/inputInvoice' class="list-group-item list-group-item-action">Phiếu nhập sách</a>
+        <a routerLink='/saleInvoice' class="list-group-item list-group-item-action">Hóa đơn bán sách</a>
+        <a routerLink='/product' class="list-group-item list-group-item-action">Danh sách sách</a>
+        <a routerLink='/receipt' class="list-group-item list-group-item-action">Phiếu thu tiền</a>
+        <a routerLink='/book-report' class="list-group-item list-group-item-action">Báo cáo tồn sách</a>
+        <a routerLink='/dept-report' class="list-group-item list-group-item-action">Báo cáo công nợ</a>
+        <a routerLink='/customer-account' class="list-group-item list-group-item-action">Tài khoản khách hàng</a>
+      </nav>
+    </div>
+    <div class="col-md">
+
+      <router-outlet></router-outlet>
+
+    </div>
+  </div>
+</div>
