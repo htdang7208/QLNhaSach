@@ -48,38 +48,38 @@ insert into Customer values (N'Tú', N'Trần Thanh', '0132658479', 'thd@gmail.c
 insert into Customer values (N'Xuân', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'admin2', 'ccbe91b1f19bd31a1365363870c0eec2296a61c1', 0, 1)
 insert into Customer values (N'Tuấn', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'admin3', 'ccbe91b1f19bd31a1365363870c0eec2296a61c1', 0, 1)
 
-if OBJECT_ID('Product', 'U') is not null
-	drop table Product
+if OBJECT_ID('Book', 'U') is not null
+	drop table Book
 else
 begin
-	create table Product
+	create table Book
 	(
 		id int identity not null primary key,	--PRO001
 		name nvarchar(100),
 		price float,
 		kind nvarchar(100),
 		author nvarchar(255),	
-		quantity int,
+		stock int,
 		state bit	--tình trạng: còn hàng/hết hàng
 	)
 end
 go
-insert into Product values (N'Thám tử lừng danh Conan (tập 95)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Thám tử lừng danh Conan (tập 95)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Thám tử lừng danh Conan (tập 95)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Thám tử lừng danh Conan (tập 95)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Thần đồng Đất Việt (tập 227)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Thần đồng Đất Việt (tập 227)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Thần đồng Đất Việt (tập 227)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Thần đồng Đất Việt (tập 227)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Truyện cổ tích Việt Nam được yêu thích nhất', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Truyện cổ tích Việt Nam được yêu thích nhất', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Truyện cổ tích Việt Nam được yêu thích nhất', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Truyện cổ tích Việt Nam được yêu thích nhất', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Công chúa và chàng ếch', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Công chúa và chàng ếch', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Công chúa và chàng ếch', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
-insert into Product values (N'Công chúa và chàng ếch', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Thám tử lừng danh Conan (tập 95)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Thám tử lừng danh Conan (tập 95)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Thám tử lừng danh Conan (tập 95)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Thám tử lừng danh Conan (tập 95)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Thần đồng Đất Việt (tập 227)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Thần đồng Đất Việt (tập 227)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Thần đồng Đất Việt (tập 227)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Thần đồng Đất Việt (tập 227)', 25000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Truyện cổ tích Việt Nam được yêu thích nhất', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Truyện cổ tích Việt Nam được yêu thích nhất', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Truyện cổ tích Việt Nam được yêu thích nhất', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Truyện cổ tích Việt Nam được yêu thích nhất', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Công chúa và chàng ếch', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Công chúa và chàng ếch', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Công chúa và chàng ếch', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
+insert into Book values (N'Công chúa và chàng ếch', 100000, N'Truyện tranh', N'Huỳnh TD', 100, 1)
 
 if OBJECT_ID('Receipt', 'U') is not null
 	drop table Receipt
@@ -126,14 +126,14 @@ begin
 	(
 		id int identity not null primary key,	--OR001
 		saleInvoiceId int,
-		productId int,
+		bookId int,
 		quantity int,
 		totalPrice float
 	)
 end
 go
 alter table SaleDetail add constraint FK_SaleDetail_SaleInvoice foreign key(saleInvoiceId) references SaleInvoice(id)
-alter table SaleDetail add constraint FK_SaleDetail_Product foreign key(productId) references Product(id)
+alter table SaleDetail add constraint FK_SaleDetail_Book foreign key(bookId) references Book(id)
 insert into SaleDetail values (1, 1, 2, 50000)
 insert into SaleDetail values (1, 2, 2, 50000)
 insert into SaleDetail values (1, 3, 2, 50000)
@@ -154,47 +154,27 @@ begin
 	create table Input
 	(
 		id int identity not null primary key,	--INI001
-		dateInput datetime
+		bookId int,
+		quantity int
 	)
 end
 go
-insert into Input values ('05/22/2019')
-insert into Input values ('05/23/2019')
-insert into Input values ('05/24/2019')
-insert into Input values ('05/25/2019')
-insert into Input values ('05/26/2019')
-insert into Input values ('05/27/2019')
-
-if OBJECT_ID('InputInfo', 'U') is not null
-	drop table InputInfo
-else
-begin
-	create table InputInfo
-	(
-		id int identity not null primary key,	--INI001
-		productId int,
-		quantity int,
-		inputId int
-	)
-end
-go
-alter table InputInfo add constraint FK_InputInfo_Product foreign key(productId) references Product(id)
-alter table InputInfo add constraint FK_InputInfo_Input foreign key(inputId) references Input(id)
-insert into InputInfo values (1, 50, 1)
-insert into InputInfo values (1, 15, 1)
-insert into InputInfo values (2, 50, 1)
-insert into InputInfo values (2, 25, 1)
-insert into InputInfo values (3, 50, 2)
-insert into InputInfo values (4, 50, 2)
-insert into InputInfo values (5, 55, 2)
-insert into InputInfo values (1, 50, 2)
-insert into InputInfo values (2, 50, 2)
-insert into InputInfo values (3, 45, 3)
-insert into InputInfo values (3, 50, 3)
-insert into InputInfo values (3, 50, 4)
-insert into InputInfo values (2, 45, 4)
-insert into InputInfo values (3, 20, 4)
-insert into InputInfo values (7, 35, 5)
-insert into InputInfo values (9, 50, 6)
-insert into InputInfo values (5, 30, 6)
-insert into InputInfo values (3, 50, 6)
+alter table Input add constraint FK_Input_Book foreign key(bookId) references Book(id)
+insert into Input values (1, 50)
+insert into Input values (1, 15)
+insert into Input values (2, 50)
+insert into Input values (2, 25)
+insert into Input values (3, 50)
+insert into Input values (4, 50)
+insert into Input values (5, 55)
+insert into Input values (1, 50)
+insert into Input values (2, 50)
+insert into Input values (3, 45)
+insert into Input values (3, 50)
+insert into Input values (3, 50)
+insert into Input values (2, 45)
+insert into Input values (3, 20)
+insert into Input values (7, 35)
+insert into Input values (9, 50)
+insert into Input values (5, 30)
+insert into Input values (3, 50)

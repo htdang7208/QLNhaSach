@@ -7,8 +7,8 @@ export class ApiService {
 
   constructor() { }
 
-  baseUrl = 'https://localhost:44327/api/';
+  baseUrl = "https://localhost:44327/api/";
   apiUrl = {
-    customers: this.baseUrl + 'customers'
+    admins: this.baseUrl + "admins"
   }
 }
