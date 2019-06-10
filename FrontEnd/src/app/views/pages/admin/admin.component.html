@@ -23,18 +23,20 @@
       <th class="text-center">Stt</th>
       <th>Tên</th>
       <th>Email</th>
-      <th class="text-center">Username</th>
+      <th>Username</th>
+      <th>Password</th>
       <th>Avatar</th>
-      <th></th>
+      <th class="text-center">Action</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let row of list; let i = index">
       <td class="text-center">{{i + 1}}</td>
-      <td>{{row.lastName}} {{row.firstName}}</td>
+      <td>{{row.name}}</td>
       <td>{{row.email}}</td>
-      <td class="text-center">{{row.username}}</td>
-      <td>none avatar</td>
+      <td>{{row.username}}</td>
+      <td>{{row.password}}</td>
+      <td><img [src]="row.url" alt="admin"></td>
       <td class="text-center">
         <button type="button" class="btn btn-danger btn-sm mr-1" data-toggle="modal" (click)="removeAdmin(row.id)"
           data-target="#modal-remove"><i class="fa fa-trash"></i></button>
@@ -49,9 +51,10 @@
       <th class="text-center">Stt</th>
       <th>Tên</th>
       <th>Email</th>
-      <th class="text-center">Username</th>
+      <th>Username</th>
+      <th>Password</th>
       <th>Avatar</th>
-      <th></th>
+      <th class="text-center">Action</th>
     </tr>
   </tfoot>
 </table>
@@ -68,52 +71,61 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body pr-0">
         <!-- ... -->
 
-        <form name="Form" class="col">
-          <div class="form-group row">
-            <div class="col-sm col-md mb-3 mb-md-0">
-              <input [(ngModel)]="admin.firstName" id="firstname" name="Firstname" type="text" class="form-control"
-                placeholder="First name" required /></div>
-            <div class="col-md">
-              <input [(ngModel)]="admin.lastName" name="Lastname" type="text" class="form-control"
-                placeholder="Last name" required /></div>
-          </div>
-          <div class="form-group row">
-            <div class="col-sm col-md mb-3 mb-md-0">
-              <input [(ngModel)]="admin.email" name="Email" type="email" class="form-control" placeholder="Email"
-                required /></div>
-            <div class="col-md">
-              <input [(ngModel)]="admin.phone" name="Phone" type="text" class="form-control" placeholder="Phone"
-                required /></div>
-          </div>
-          <div class="form-group row">
-            <div class="col-sm col-md mb-3 mb-md-0">
-              <input [(ngModel)]="admin.address" name="Address" type="text" class="form-control" placeholder="Address"
-                required /></div>
-          </div>
-          <div class="form-group row">
-            <div class="col-sm-6 col-md mb-3 mb-md-0">
-              <input [(ngModel)]="admin.username" name="Username" type="text" class="form-control"
-                placeholder="Username" required /></div>
-          </div>
-          <div class="form-group row">
-            <div class="col-sm col-md mb-3 mb-md-0">
-              <input [(ngModel)]="admin.password" name="Password" type="password" class="form-control"
-                placeholder="Pasword" required /></div>
-            <div class="col-md">
-              <input name="RetypePassword" type="password" class="form-control" placeholder="Retype pasword" required />
+        <div class="container-fluid">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row" id="myForm" novalidate>
+            <div class="col-sm col-md-8">
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Name</span>
+                <input [(ngModel)]="admin.name" type="text" class="col-sm col-md-8 form-control" formControlName="name"
+                  placeholder="Tên" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Email</span>
+                <input [(ngModel)]="admin.email" type="email" class="col-sm col-md-8 form-control"
+                  formControlName="email" placeholder="Email" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Username</span>
+                <input [(ngModel)]="admin.username" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="username" placeholder="Tên tài khoản" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Password</span>
+                <input [(ngModel)]="admin.password" type="password" class="col-sm col-md-8 form-control"
+                  formControlName="password" placeholder="Mật khẩu" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Confirm Password</span>
+                <input type="password" class="col-sm col-md-8 form-control" placeholder="Nhập lại mật khẩu" required />
+              </p>
             </div>
-          </div>
-        </form>
+            <div class="col-sm col-md-4">
+              <div class="row">
+                <p class="mb-0 col" id="imageFrame">
+                  <img [src]="admin.url" alt="" class="w-100 rounded img-fluid img-thumbnail" />
+                </p>
+              </div>
+              <div class="row">
+                <div class="col input-group">
+                  <div class="custom-file">
+                    <input type="file" #uploader class="custom-file-input" id="file-input"
+                      (change)="onFileSelect($event.target.files)">
+                    <label class="custom-file-label" for="file-input">{{fileChosen}}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
 
         <!-- ... -->
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" (click)="save($event)" data-toggle="modal"
-          data-target="#modal-inform">
+        <button type="submit" form="myForm" class="btn btn-primary" data-toggle="modal" data-target="#modal-inform">
           {{ admin.id === undefined || admin.id === 0 ? 'Save' : 'Update'}}
         </button>
       </div>

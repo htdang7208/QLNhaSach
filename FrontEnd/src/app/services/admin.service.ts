@@ -1,20 +1,17 @@
-import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http'
+import { Injectable } from '@angular/core';
 
 // Tạo interface hứng dữ liệu từ server
 export interface Admin {
   id: number,
-  firstName: string,
-  lastName: string,
-  phone: string,
   email: string,
-  address: string,
+  name: string,
   username: string,
   password: string,
-  dept: number,
-  isAdmin: boolean
+  imageName: string,
+  url: string
 }
 export interface AdminResponse {
   errorCode: number,
@@ -38,11 +35,14 @@ export class AdminService {
   get(id: number): Observable<AdminResponse> {
     return this.http.get<AdminResponse> (`${this.api.apiUrl.admins}/${id}`);
   }
-  add(data: Admin): Observable<AdminResponse> {
+  getPhotoUrl(id: number): Observable<AdminResponse> {
+    return this.http.get<AdminResponse> (`${this.api.apiUrl.admins}/${"getPhotoUrl"}/${id}`);
+  }
+  add(data: FormData): Observable<AdminResponse> {
     return this.http.post<AdminResponse> (`${this.api.apiUrl.admins}`, data);
   }
-  update(data: Admin): Observable<AdminResponse> {
-    return this.http.put<AdminResponse> (`${this.api.apiUrl.admins}/${data.id}`, data);
+  update(data: FormData, id: number): Observable<AdminResponse> {
+    return this.http.put<AdminResponse> (`${this.api.apiUrl.admins}/${id}`, data);
   }
   remove(id: number): Observable<AdminResponse> {
     return this.http.delete<AdminResponse> (`${this.api.apiUrl.admins}/${id}`);

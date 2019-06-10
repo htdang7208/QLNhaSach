@@ -18,6 +18,23 @@ go
 use NhaSach_online
 go
 
+if OBJECT_ID ('Admin', 'U') is not null
+	drop table Admin
+else
+begin
+	create table Admin
+	(
+		id int identity not null primary key,	--CUS001/AD001
+		name nvarchar(255),
+		email varchar(255),
+		username varchar(255),
+		password varchar(1000),
+		imageName varchar(MAX),
+		url varchar(MAX)
+	)
+end
+go
+
 if OBJECT_ID ('Customer', 'U') is not null
 	drop table Customer
 else

@@ -8,10 +8,20 @@
         <div class="row align-items-center mx-0">
           <div class="col-md text-right">
             <p class="m-0">Chào&#44;</p>
-            <p class="m-0"><strong>Cao Phương Đức</strong></p>
+            <p class="m-0"><strong>{{admin.name}}</strong></p>
           </div>
-          <div class="col-md-4">
-            <img class="rounded-circle img-thumbnail" src="Co3La_75.jpg" alt="Co3La" />
+          <div class="col-md-auto profile d-flex align-items-center">
+            <div class="dropdown">
+              <a class="btn btn-outline-light p-0 dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <img class="w-100 img-fluid img-thumbnail" [src]="admin.url" alt="Co3La" />
+              </a>
+
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <a class="dropdown-item px-0 text-center" href="#">Đăng nhập</a>
+                <a class="dropdown-item px-0 text-center" href="#">Đăng xuất</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -35,7 +45,7 @@
       </nav>
     </div>
     <div class="col-md">
-      
+
       <router-outlet></router-outlet>
 
     </div>

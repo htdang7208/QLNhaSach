@@ -8,17 +8,21 @@ import { FormsModule } from '@angular/forms';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
 import { AdminComponent } from './views/pages/admin/admin.component';
 import { HttpClientModule } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CustomerComponent } from './views/pages/customer/customer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AdminComponent,
-    DashboardComponent
+    DashboardComponent,
+    CustomerComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpClientModule,
+    ReactiveFormsModule,
     RouterModule.forRoot([
       {path: 'admin', component: AdminComponent, data: {title: "Admin"}}
     ])

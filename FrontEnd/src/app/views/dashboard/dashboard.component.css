@@ -1,0 +1,8 @@
+.profile {
+    width: 64px !important;
+    height: 64px !important;
+    padding: 0;
+}
+.dropdown-menu {
+    left: -45px !important;
+}
