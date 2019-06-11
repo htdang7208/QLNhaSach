@@ -9,6 +9,7 @@ export class ApiService {
 
   baseUrl = "https://localhost:44327/api/";
   apiUrl = {
-    admins: this.baseUrl + "admins"
+    admins: this.baseUrl + "admins",
+    customers: this.baseUrl + "customers"
   }
 }

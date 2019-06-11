@@ -24,7 +24,8 @@ import { CustomerComponent } from './views/pages/customer/customer.component';
     HttpClientModule,
     ReactiveFormsModule,
     RouterModule.forRoot([
-      {path: 'admin', component: AdminComponent, data: {title: "Admin"}}
+      {path: 'admin', component: AdminComponent, data: {title: "Admin"}},
+      {path: 'customer', component: CustomerComponent, data: {title: "Customer"}}
     ])
   ],
   providers: [],

@@ -34,6 +34,9 @@ begin
 	)
 end
 go
+insert into Admin values (N'System admin', 'huynhthanhdang77@gmail.com', 'root', '8E1EFD3B06AD62427E298137DB4179C97C22DE1A', '1_root.png', 'https://localhost:44327/Data/1_root.png')
+insert into Admin values (N'1A', 'huynh@gmail.com', 'admin', '8E1EFD3B06AD62427E298137DB4179C97C22DE1A', '2_user2.png', 'https://localhost:44327/Data/2_user2.png')
+insert into Admin values (N'2A', 'thanh77@gmail.com', 'noadmin', '8E1EFD3B06AD62427E298137DB4179C97C22DE1A', '3_user3.png', 'https://localhost:44327/Data/3_user3.png')
 
 if OBJECT_ID ('Customer', 'U') is not null
 	drop table Customer
@@ -50,20 +53,20 @@ begin
 		username varchar(255),
 		password varchar(1000),
 		dept float,
-		isAdmin bit
+		url varchar(MAX)
 	)
 end
 go
-insert into Customer values (N'Đàn', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user1', '601f1889667efaebb33b8c12572835da3f027f78', 15000, 0)
-insert into Customer values (N'Tâm', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user2', '601f1889667efaebb33b8c12572835da3f027f78', 0, 0)
-insert into Customer values (N'Ly', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user3', '601f1889667efaebb33b8c12572835da3f027f78', 5000, 0)
-insert into Customer values (N'Nam', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user4', '601f1889667efaebb33b8c12572835da3f027f78', 20000, 0)
-insert into Customer values (N'Trung', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user5', '601f1889667efaebb33b8c12572835da3f027f78', 25000, 0)
-insert into Customer values (N'Thanh', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user6', '601f1889667efaebb33b8c12572835da3f027f78', 10000, 0)
-insert into Customer values (N'Thành', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user7', '601f1889667efaebb33b8c12572835da3f027f78', 5000, 0)
-insert into Customer values (N'Tú', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'admin1', 'ccbe91b1f19bd31a1365363870c0eec2296a61c1', 5000, 1)
-insert into Customer values (N'Xuân', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'admin2', 'ccbe91b1f19bd31a1365363870c0eec2296a61c1', 0, 1)
-insert into Customer values (N'Tuấn', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'admin3', 'ccbe91b1f19bd31a1365363870c0eec2296a61c1', 0, 1)
+insert into Customer values (N'Đàn', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user1', '601f1889667efaebb33b8c12572835da3f027f78', 15000, null)
+insert into Customer values (N'Tâm', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user2', '601f1889667efaebb33b8c12572835da3f027f78', 0, null)
+insert into Customer values (N'Ly', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user3', '601f1889667efaebb33b8c12572835da3f027f78', 5000, null)
+insert into Customer values (N'Nam', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user4', '601f1889667efaebb33b8c12572835da3f027f78', 20000, null)
+insert into Customer values (N'Trung', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user5', '601f1889667efaebb33b8c12572835da3f027f78', 25000, null)
+insert into Customer values (N'Thanh', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user6', '601f1889667efaebb33b8c12572835da3f027f78', 10000, null)
+insert into Customer values (N'Thành', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'user7', '601f1889667efaebb33b8c12572835da3f027f78', 5000, null)
+insert into Customer values (N'Tú', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'admin1', 'ccbe91b1f19bd31a1365363870c0eec2296a61c1', 5000, null)
+insert into Customer values (N'Xuân', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'admin2', 'ccbe91b1f19bd31a1365363870c0eec2296a61c1', 0, null)
+insert into Customer values (N'Tuấn', N'Trần Thanh', '0132658479', 'thd@gmail.com', N'154 Nguyễn Chí Thanh', 'admin3', 'ccbe91b1f19bd31a1365363870c0eec2296a61c1', 0, null)
 
 if OBJECT_ID('Book', 'U') is not null
 	drop table Book
