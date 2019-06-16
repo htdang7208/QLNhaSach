@@ -17,6 +17,7 @@ namespace QLNhaSach.Models
         public string address { get; set; }
         public string username { get; set; }
         public string password { get; set; }
+        public string confirmPassword { get; set; }
         public double oldDept { get; set; }
         public double nowDept { get; set; }
 

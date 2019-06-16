@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QLNhaSach.Models;
 using QLNhaSach.Models.Response;
+using QLNhaSach.Models.Responses;
 using QLNhaSach.Utils;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -33,6 +34,7 @@ namespace QLNhaSach.Controllers
                 Data = await _context.CUSTOMERS.Where(x => x.isRemove == false).ToListAsync()
             };
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<BaseResponse>> Get(int id)
         {
@@ -51,6 +53,17 @@ namespace QLNhaSach.Controllers
                 Message = "Không tìm thấy khách hàng này trong CSDL!"
             };
         }
+
+        [HttpGet("customerRemoved")]
+        public async Task<ActionResult<BaseResponse>> GetCustomerRemoved()
+        {
+            return new BaseResponse
+            {
+                ErrorCode = Roles.Success,
+                Data = await _context.CUSTOMERS.Where(x => x.isRemove == true).ToListAsync()
+            };
+        }
+
         [HttpPost]
         public async Task<ActionResult<BaseResponse>> Post([FromForm] CUSTOMER customer)
         {
@@ -60,34 +73,35 @@ namespace QLNhaSach.Controllers
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Empty,
-                    Message = "Username\nPassword\nPhone\nKhông được phép bỏ trống!"
+                    ErrorCode = Roles.Empty
+                };
+            }
+            if (Helper.GenHash(customer.password) != customer.confirmPassword)
+            {
+                return new BaseResponse
+                {
+                    ErrorCode = Roles.Password_Not_Match_Confirm
                 };
             }
             // check exists
-            var exists = await _context.CUSTOMERS
-                .Where(cus => cus.username == customer.username)
-                .FirstOrDefaultAsync();
+            var exists = await _context.CUSTOMERS.Where(cus => cus.username == customer.username).FirstOrDefaultAsync();
             if(exists != null)
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Existed_Username,
-                    Message = "Username này đã tồn tại"
+                    ErrorCode = Roles.Existed_Username
                 };
             }
-            exists = await _context.CUSTOMERS
-                .Where(cus => cus.phone == customer.phone)
-                .FirstOrDefaultAsync();
+            exists = await _context.CUSTOMERS.Where(cus => cus.phone == customer.phone).FirstOrDefaultAsync();
             if(exists != null)
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Existed_Phone,
-                    Message = "Phone này đã tồn tại"
+                    ErrorCode = Roles.Existed_Phone
                 };
             }
             //update some fields client don't send
+            customer.password = Helper.GenHash(customer.password);
             customer.url = "";
             customer.isRemove = false;
 
@@ -98,7 +112,7 @@ namespace QLNhaSach.Controllers
             if (file != null)
             {
                 string domainUrl = Request.Scheme + "://" + Request.Host.ToString();
-                string fileName = customer.id + "_" + customer.imageName;
+                string fileName = customer.id + "_" + file.FileName;
                 string path = _ihostingEnvironment.WebRootPath + "\\Customers\\" + fileName;
                 using (var stream = new FileStream(path, FileMode.Create))
                 {
@@ -108,6 +122,7 @@ namespace QLNhaSach.Controllers
                     customer.url = domainUrl + "/Customers/" + fileName;  //http://localhost:59209/customers/back-end-ex-1.png
 
                     _context.Entry(customer).Property(x => x.imageName).IsModified = true;
+                    _context.Entry(customer).Property(x => x.url).IsModified = true;
                     _context.SaveChanges();
                 }
             }
@@ -118,43 +133,40 @@ namespace QLNhaSach.Controllers
                 Data = customer
             };
         }
-        [HttpPut]
-        public async Task<ActionResult<BaseResponse>> Put([FromForm] CUSTOMER customer)
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<BaseResponse>> Put([FromForm] CUSTOMER customer, int id)
         {
             if (string.IsNullOrEmpty(customer.username) ||
-                 string.IsNullOrEmpty(customer.password) ||
                  string.IsNullOrEmpty(customer.phone))
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Empty,
-                    Message = "username\npassword\nphone\nKhông được phép bỏ trống!"
+                    ErrorCode = Roles.Empty
                 };
             }
             // check exists
             var exists = await _context.CUSTOMERS
-                .Where(cus => cus.username == customer.username && cus.id != customer.id)
+                .Where(cus => cus.username == customer.username && cus.id != id)
                 .FirstOrDefaultAsync();
             if (exists != null)
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Existed_Username,
-                    Message = "Khách hàng với 'Tên tài khoản' này đã tồn tại"
+                    ErrorCode = Roles.Existed_Username
                 };
             }
             exists = await _context.CUSTOMERS
-                .Where(cus => cus.phone == customer.phone && cus.id != customer.id)
+                .Where(cus => cus.phone == customer.phone && cus.id != id)
                 .FirstOrDefaultAsync();
             if (exists != null)
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Existed_Phone,
-                    Message = "Khách hàng với 'Số điện thoại' này đã tồn tại"
+                    ErrorCode = Roles.Existed_Phone
                 };
             }
-            var valid = await _context.CUSTOMERS.FindAsync(customer.id);
+            var valid = await _context.CUSTOMERS.FindAsync(id);
 
             valid.firstName = customer.firstName;
             valid.lastName = customer.lastName;
@@ -162,7 +174,7 @@ namespace QLNhaSach.Controllers
             valid.email = customer.email;
             valid.address = customer.address;
             valid.username = customer.username;
-            valid.password = Helper.GenHash(customer.password);
+            //valid.password = Helper.GenHash(customer.password);
             valid.oldDept = customer.oldDept;
             valid.nowDept = customer.nowDept;
             
@@ -181,7 +193,7 @@ namespace QLNhaSach.Controllers
 
                 // add new path
                 string domainUrl = Request.Scheme + "://" + Request.Host.ToString();
-                string fileName = customer.id + "_" + customer.imageName;
+                string fileName = valid.id + "_" + file.FileName;
                 path = _ihostingEnvironment.WebRootPath + "\\Customers\\" + fileName;
                 using (var stream = new FileStream(path, FileMode.Create))
                 {
@@ -191,16 +203,68 @@ namespace QLNhaSach.Controllers
                     customer.url = domainUrl + "/Customers/" + fileName;
 
                     _context.Entry(customer).Property(x => x.imageName).IsModified = true;
+                    _context.Entry(customer).Property(x => x.url).IsModified = true;
                     _context.SaveChanges();
                 }
             }
             return new BaseResponse
             {
-                ErrorCode = Roles.Success,
-                Message = "Cập nhật thành công!:",
-                Data = customer
+                ErrorCode = Roles.Success
             };
         }
+
+        [HttpPut("changePassword/{id}")]
+        public async Task<ActionResult<BaseResponse>> PutPassword(ChangePassword p, int id)
+        {
+            if (string.IsNullOrEmpty(p.oldPassword) ||
+                string.IsNullOrEmpty(p.newPassword) ||
+                string.IsNullOrEmpty(p.confirmPassword))
+            {
+                return new BaseResponse
+                {
+                    ErrorCode = Roles.Empty
+                };
+            }
+            var valid = await _context.CUSTOMERS.Where(cus => cus.id == id).FirstOrDefaultAsync();
+            if (Helper.GenHash(p.oldPassword) != valid.password)
+            {
+                return new BaseResponse
+                {
+                    ErrorCode = Roles.Password_Not_Match_Origin
+                };
+            }
+            if (p.newPassword != p.confirmPassword)
+            {
+                return new BaseResponse
+                {
+                    ErrorCode = Roles.Password_Not_Match_Confirm
+                };
+            }
+
+            valid.password = Helper.GenHash(valid.password);
+
+            _context.CUSTOMERS.Update(valid);
+            await _context.SaveChangesAsync();
+            return new BaseResponse
+            {
+                ErrorCode = Roles.Success
+            };
+        }
+
+        [HttpPut("restore/{id}")]
+        public async Task<ActionResult<BaseResponse>> PutRestore(int id)
+        {
+            var valid = await _context.CUSTOMERS.Where(cus => cus.id == id).FirstOrDefaultAsync();
+            valid.isRemove = false;
+
+            _context.CUSTOMERS.Update(valid);
+            await _context.SaveChangesAsync();
+            return new BaseResponse
+            {
+                ErrorCode = Roles.Success
+            };
+        }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult<BaseResponse>> Delete(int id)
         {

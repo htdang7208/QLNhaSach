@@ -10,13 +10,15 @@ import { AdminComponent } from './views/pages/admin/admin.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CustomerComponent } from './views/pages/customer/customer.component';
+import { BookComponent } from './views/pages/book/book.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AdminComponent,
     DashboardComponent,
-    CustomerComponent
+    CustomerComponent,
+    BookComponent
   ],
   imports: [
     BrowserModule,

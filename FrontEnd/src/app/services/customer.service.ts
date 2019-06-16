@@ -13,6 +13,7 @@ export interface Customer {
   address: string,
   username: string,
   password: string,
+  confirmPassword: string,
   oldDept: number,
   nowDept: number,
   imageName: string,
@@ -29,6 +30,16 @@ export interface ListCustomerResponse {
   message: string,
   data: Customer[]
 }
+export interface ListRemovedResponse {
+  errorCode: number,
+  message: string,
+  data: Customer[]
+}
+export interface ChangePassword {
+  oldPassword: string,
+  newPassword: string,
+  confirmPassword: string
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -38,6 +49,9 @@ export class CustomerService {
   getAll(): Observable<ListCustomerResponse> {
     return this.http.get<ListCustomerResponse> (`${this.api.apiUrl.customers}`);
   }
+  getAllRemoved(): Observable<ListRemovedResponse> {
+    return this.http.get<ListRemovedResponse>(`${this.api.apiUrl.customers}/${'customerRemoved'}`);
+  }
   get(id: number): Observable<CustomerResponse> {
     return this.http.get<CustomerResponse> (`${this.api.apiUrl.customers}/${id}`);
   }
@@ -46,6 +60,12 @@ export class CustomerService {
   }
   update(data: FormData, id: number): Observable<CustomerResponse> {
     return this.http.put<CustomerResponse> (`${this.api.apiUrl.customers}/${id}`, data);
+  }
+  updatePassword(p: ChangePassword, id: number): Observable<CustomerResponse> {
+    return this.http.put<CustomerResponse>(`${this.api.apiUrl.customers}/${'changePassword'}/${id}`, p);
+  }
+  restoreCustomer(id: number, data: Customer = null): Observable<CustomerResponse> {
+    return this.http.put<CustomerResponse>(`${this.api.apiUrl.customers}/${'restore'}/${id}`, data);
   }
   remove(id: number): Observable<CustomerResponse> {
     return this.http.delete<CustomerResponse> (`${this.api.apiUrl.customers}/${id}`);

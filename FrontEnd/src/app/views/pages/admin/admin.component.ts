@@ -69,8 +69,8 @@ export class AdminComponent implements OnInit {
   onFileSelect(files: FileList) {
     if (files && files[0].size > 0) {
       this.form.get('file').patchValue(files[0]);
+      this.fileChosen = files[0].name;
     }
-    // console.log(document.getElementById('imageFrame'));
     if (document.getElementById('img-1') != null) {
       this.imageTemplate = document.getElementById('img-1');
       document.getElementById('img-1').hidden;
@@ -103,6 +103,7 @@ export class AdminComponent implements OnInit {
     }
   }
   showModalEditAdmin(event: any = null, id: number = 0) {
+    this.fileChosen = "Choose file";
     if (event) {
       event.preventDefault();
     }
@@ -152,18 +153,6 @@ export class AdminComponent implements OnInit {
         }
       );
     }
-    // $.ajax({
-    //   type: "POST",
-    //   url: "/api/images",
-    //   contentType: false,
-    //   processData: false,
-    //   data: data,
-    //   success: function (results) {
-    //     for (i = 0; i < results.length; i++) {
-    //       alert(results[i]);
-    //     }
-    //   }
-    // });
   }
   closeEditModal($event: any = null) {
     if (document.getElementById('img-2') != null) {
@@ -177,7 +166,7 @@ export class AdminComponent implements OnInit {
     this.service.getAll().subscribe(response => { this.list = response.data; });
   }
   loadDataRemoved() {
-    this.service.getAllRemoved().subscribe(response => { this.listRemoved = response.data; });
+    this.service.getAllRemoved().subscribe(response => { this.listRemoved = response.data; console.log(this.listRemoved); });
   }
   restoreAdmin(id: number) {
     this.service.restoreAdmin(id).subscribe(response => {
@@ -224,33 +213,4 @@ export class AdminComponent implements OnInit {
   changeStageInformPasword($event = null) {
     this.hasInform = false;
   }
-  // handleFileSelect($event: any) {
-  //   this.fileChosen = $event.target.files[0].name;
-  //   var files = $event.target.files;
-  //   for (var i = 0, f; f = files[i]; i++) {
-  //     // Only process image files.
-  //     if (!f.type.match('image.*')) {
-  //       continue;
-  //     }
-
-  //     var reader = new FileReader();
-
-  //     // Closure to capture the file information.
-  //     reader.onload = (function (theFile) {
-  //       return function (e) {
-  //         var span = document.createElement('span');
-  //         span.innerHTML = [
-  //           '<img class="w-100 rounded img-fluid img-thumbnail" ',
-  //           'src="', e.target.result, '" ',
-  //           'title="', escape(theFile.name), '"/>'
-  //         ].join('');
-  //         document.getElementById('imageFrame').innerHTML = "";
-  //         document.getElementById('imageFrame').insertBefore(span, null);
-  //       };
-  //     })(f);
-  //     // Read in the image file as a data URL.
-  //     reader.readAsDataURL(f);
-  //   }
-  //   // console.log(document.querySelector('#imageFrame span > img'));
-  // }
 }

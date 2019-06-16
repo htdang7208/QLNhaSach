@@ -3,8 +3,8 @@
     <h2 class="text-success">Thông tin khách hàng</h2>
   </div>
   <div class="col-md text-right">
-    <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#modal-edit"><i
-        class="fas fa-plus-square"></i>Thêm khách hàng</button>
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-edit"
+      (click)="showModalEditCustomer($event)"><i class="fas fa-plus-square"></i>Thêm khách hàng</button>
   </div>
   <div class="col-md">
     <div class="input-group">
@@ -16,7 +16,6 @@
     </div>
   </div>
 </div>
-<!--  -->
 <table id="customer-table" class="table table-striped table-bordered" style="width:100%">
   <thead>
     <tr>
@@ -40,10 +39,10 @@
       <td>{{row.nowDept}}</td>
       <td><img [src]="row.url" alt="cus"></td>
       <td class="text-center">
-        <button type="button" class="btn btn-danger btn-sm mr-1" data-toggle="modal" (click)="removeCustomer(row.id)"
-          data-target="#modal-remove"><i class="fa fa-trash"></i></button>
-        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" (click)="getCustomer(row.id)"
-          data-target="#modal-edit"><i class="fa fa-edit"></i></button>
+        <button type="button" class="btn btn-danger btn-sm mr-1" data-toggle="modal"
+          (click)="showModalRemoveCustomer(row.id)" data-target="#modal-remove"><i class="fa fa-trash"></i></button>
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+          (click)="showModalEditCustomer($event, row.id)" data-target="#modal-edit"><i class="fa fa-edit"></i></button>
       </td>
     </tr>
 
@@ -61,6 +60,57 @@
     </tr>
   </tfoot>
 </table>
+
+<!-- Thông tin những customer bị xóa -->
+<div class="row">
+  <div class="col-md">
+    <h2 class="text-success">Những khách hàng đã bị xóa</h2>
+  </div>
+</div>
+<table id="customer-table" class="table table-striped table-bordered" style="width:100%">
+  <thead>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th class="text-overflow">Tên</th>
+      <th class="text-overflow">SĐT</th>
+      <th class="text-overflow">Username</th>
+      <th class="text-overflow">OldDept</th>
+      <th class="text-overflow">NowDept</th>
+      <th class="text-overflow">Avatar</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let row of listRemoved; let i = index">
+      <td class="text-center">{{i + 1}}</td>
+      <td>{{row.lastName}} {{row.firstName}}</td>
+      <td>{{row.phone}}</td>
+      <td>{{row.username}}</td>
+      <td>{{row.oldDept}}</td>
+      <td>{{row.nowDept}}</td>
+      <td><img [src]="row.url" alt="cus"></td>
+      <td class="text-center">
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+          (click)="showModalRestoreCustomer(row.id)" data-target="#modal-restore"><i
+            class="fa fa-trash-restore"></i></button>
+      </td>
+    </tr>
+
+  </tbody>
+  <tfoot>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th class="text-overflow">Tên</th>
+      <th class="text-overflow">SĐT</th>
+      <th class="text-overflow">Username</th>
+      <th class="text-overflow">OldDept</th>
+      <th class="text-overflow">NowDept</th>
+      <th class="text-overflow">Avatar</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </tfoot>
+</table>
+
 <!-- Edit Modal -->
 <div id="modal-edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
   aria-hidden="true">
@@ -78,17 +128,17 @@
         <!-- ... -->
 
         <div class="container-fluid">
-          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="row" id="myForm" novalidate>
+          <form [formGroup]="form" (ngSubmit)="submitFormEditModal()" class="row" id="myForm" novalidate>
             <div class="col-sm col-md-8">
               <p class="form-group row">
                 <span class="col-sm col-md-4 text-right">FirstName</span>
-                <input [(ngModel)]="customer.firstName" type="text" class="col-sm col-md-8 form-control" formControlName="firstName"
-                  placeholder="Tên" required />
+                <input [(ngModel)]="customer.firstName" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="firstName" placeholder="Tên đầu" required />
               </p>
               <p class="form-group row">
                 <span class="col-sm col-md-4 text-right">LastName</span>
-                <input [(ngModel)]="customer.lastName" type="text" class="col-sm col-md-8 form-control" formControlName="lastName"
-                  placeholder="Tên" required />
+                <input [(ngModel)]="customer.lastName" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="lastName" placeholder="Tên cuối" required />
               </p>
               <p class="form-group row">
                 <span class="col-sm col-md-4 text-right">Phone</span>
@@ -122,18 +172,21 @@
               </p>
               <p class="form-group row">
                 <span class="col-sm col-md-4 text-right">Password</span>
-                <input [(ngModel)]="customer.password" type="password" class="col-sm col-md-8 form-control"
-                  formControlName="password" placeholder="Mật khẩu" required />
+                <input [(ngModel)]="customer.password" type="password" class="col-sm col-md-8 form-control disabled"
+                  formControlName="password" placeholder="Mật khẩu" required disabled />
               </p>
-              <p class="form-group row">
-                <span class="col-sm col-md-4 text-right">Confirm Password</span>
-                <input type="password" class="col-sm col-md-8 form-control" placeholder="Nhập lại mật khẩu" required />
-              </p>
+              <div class="row">
+                <div class="col-md-8 offset-4 text-center">
+                  <button type="button" class="btn btn-outline-primary" data-toggle="modal"
+                    data-target="#modal-change-password" (click)="showModalChangePassword($event)">Change
+                    Password</button>
+                </div>
+              </div>
             </div>
             <div class="col-sm col-md-4">
               <div class="row">
                 <p class="mb-0 col" id="imageFrame">
-                  <img [src]="customer.url" alt="" class="w-100 rounded img-fluid img-thumbnail" />
+                  <img [src]="customer.url" alt="avatar" id="img-1" class="w-100 rounded img-fluid img-thumbnail" />
                 </p>
               </div>
               <div class="row">
@@ -152,7 +205,8 @@
         <!-- ... -->
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+          (click)="closeEditModal($event)">Close</button>
         <button type="submit" form="myForm" class="btn btn-primary" data-toggle="modal" data-target="#modal-inform">
           {{ customer.id === undefined || customer.id === 0 ? 'Save' : 'Update'}}
         </button>
@@ -222,8 +276,7 @@
         <p><i class="fas fa-info fa-3x text-primary mx-4"></i> {{ message }}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" (click)="OK($event)">OK</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
       </div>
     </div>
   </div>
@@ -237,7 +290,64 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-danger" (click)="remove(customer.id)">OK</button>
+        <button type="button" class="btn btn-danger" (click)="removeCustomer(customer.id)">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Restore Modal -->
+<div id="modal-restore" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content border border-primary">
+      <div class="modal-body">
+        <p><i class="fas fa-question fa-3x text-danger mx-4"></i> {{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal"
+          (click)="restoreCustomer(customer.id)">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Change Password Modal -->
+<div id="modal-change-password" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="modal-change-password">
+          Thay đổi mật khẩu
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <p class="form-group row">
+            <span class="col-sm col-md-4 text-success text-right pl-0">Old Password</span>
+            <input [(ngModel)]="passwordObject.oldPassword" type="password" class="col-sm col-md-8 form-control"
+              placeholder="Mật khẩu cũ" required />
+          </p>
+          <p class="form-group row">
+            <span class="col-sm col-md-4 text-success text-right pl-0">New Password</span>
+            <input [(ngModel)]="passwordObject.newPassword" type="password" class="col-sm col-md-8 form-control"
+              placeholder="Mật khẩu mới" required />
+          </p>
+          <p class="form-group row">
+            <span class="col-sm col-md-4 text-success text-right pl-0">Confirm Password</span>
+            <input [(ngModel)]="passwordObject.confirmPassword" type="password" class="col-sm col-md-8 form-control"
+              placeholder="Xác nhận mật khẩu" required />
+          </p>
+          <p class="text-center text-danger" *ngIf="hasInform">
+            {{message}}
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal"
+          (click)="changeStageInformPasword($event)">Close</button>
+        <button type="button" class="btn btn-outline-success" (click)="changePasword($event)">Change</button>
       </div>
     </div>
   </div>

@@ -69,6 +69,7 @@ namespace QLNhaSach.Controllers
             }
             return NoContent();
         }
+
         [HttpGet]
         public async Task<ActionResult<BaseResponse>> Get()
         {
@@ -78,6 +79,7 @@ namespace QLNhaSach.Controllers
                 Data = await _context.ADMINS.Where(x => x.isRemove == false).ToListAsync()
             };
         }
+
         [HttpGet("adminRemoved")]
         public async Task<ActionResult<BaseResponse>> GetAdminRemoved()
         {
@@ -87,6 +89,7 @@ namespace QLNhaSach.Controllers
                 Data = await _context.ADMINS.Where(x => x.isRemove == true).ToListAsync()
             };
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<BaseResponse>> Get(int id)
         {
@@ -113,20 +116,30 @@ namespace QLNhaSach.Controllers
                 Message = "Not found!"
             };
         }
+
         [HttpPost]
         public async Task<ActionResult<BaseResponse>> Post([FromForm] ADMIN admin)
         {
             if (!string.IsNullOrEmpty(admin.username) ||
                  !string.IsNullOrEmpty(admin.password))
             {
-                if (admin.password != admin.confirmPassword)
+                if (Helper.GenHash(admin.password) != admin.confirmPassword)
                 {
                     return new BaseResponse
                     {
                         ErrorCode = Roles.Password_Not_Match_Confirm
                     };
                 }
+                var exists = await _context.ADMINS.Where(ad => ad.username == admin.username && ad.id != admin.id).FirstOrDefaultAsync();
+                if(exists != null)
+                {
+                    return new BaseResponse
+                    {
+                        ErrorCode = Roles.Existed_Username
+                    };
+                }
                 //update some fields:
+                admin.password = Helper.GenHash(admin.password);
                 admin.url = "";
                 admin.isRemove = false;
                 // add object to database
@@ -162,6 +175,7 @@ namespace QLNhaSach.Controllers
                 ErrorCode = Roles.Empty
             };
         }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<BaseResponse>> Put([FromForm] ADMIN admin, int id)
         {
@@ -172,9 +186,7 @@ namespace QLNhaSach.Controllers
                     ErrorCode = Roles.Empty
                 };
             }
-            var exists = await _context.ADMINS
-                .Where(x => x.username == admin.username && x.id != id)
-                .FirstOrDefaultAsync();
+            var exists = await _context.ADMINS.Where(x => x.username == admin.username && x.id != id).FirstOrDefaultAsync();
             if (exists != null)
             {
                 return new BaseResponse
@@ -223,6 +235,7 @@ namespace QLNhaSach.Controllers
                 ErrorCode = Roles.Success
             };
         }
+
         [HttpPut("changePassword/{id}")]
         public async Task<ActionResult<BaseResponse>> PutPassword(ChangePassword p, int id)
         {
@@ -275,6 +288,7 @@ namespace QLNhaSach.Controllers
                 ErrorCode = Roles.Success
             };
         }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult<BaseResponse>> Delete(int id)
         {
