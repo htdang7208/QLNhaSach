@@ -104,6 +104,7 @@ namespace QLNhaSach.Controllers
             // Thêm một phiếu nhập mới
             var input = new INPUT { isRemove = false };
             _context.INPUTS.Add(input);
+            await _context.SaveChangesAsync();
 
             // Cập nhật phiếu nhập mới
             var list = infoEnter.listInputInfo;
@@ -116,7 +117,7 @@ namespace QLNhaSach.Controllers
                     list[i].amount == 0) {
                     return new BaseResponse
                     {
-                        ErrorCode = Roles.Error_Book_Input,
+                        ErrorCode = Roles.Empty_Book_Input,
                         Message = "Some field is empty!",
                         Data = null
                     };
@@ -151,7 +152,7 @@ namespace QLNhaSach.Controllers
                         _context.BOOKS.Update(book);
                         _context.INPUTDETAILS.Add(new INPUTDETAIL   // Thêm 1 inputDetail mới
                         {
-                            stt = i,
+                            stt = i + 1,
                             inputId = input.id,
                             bookId = book.id,
                             amount = list[i].amount
@@ -205,7 +206,7 @@ namespace QLNhaSach.Controllers
                 {
                     return new BaseResponse
                     {
-                        ErrorCode = Roles.Error_Book_Input,
+                        ErrorCode = Roles.Empty_Book_Input,
                         Message = "Some field is empty!",
                         Data = null
                     };

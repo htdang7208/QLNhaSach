@@ -33,7 +33,8 @@ export class CustomerComponent implements OnInit {
       address: [''],
       username: [''],
       password: [''],
-      dept: [''],
+      oldDept: 0,
+      nowDept: 0,
 
       file: null
     });
@@ -46,7 +47,8 @@ export class CustomerComponent implements OnInit {
     this.customer.address = this.form.get('address').value;
     this.customer.username = this.form.get('username').value;
     this.customer.password = this.form.get('password').value;
-    this.customer.dept = this.form.get('dept').value;
+    this.customer.oldDept = this.form.get('oldDept').value;
+    this.customer.nowDept = this.form.get('nowDept').value;
 
     this.customer.imageName = this.form.get('file').value;
   }
@@ -62,7 +64,8 @@ export class CustomerComponent implements OnInit {
     fd.append("address", formModel.address);
     fd.append("username", formModel.username);
     fd.append("password", formModel.password);
-    fd.append("dept", formModel.dept);
+    fd.append("oldDept", formModel.oldDept);
+    fd.append("nowDept", formModel.nowDept);
     fd.append("file", formModel.file);
     // fd.forEach(function (value, key, parent) {
     //   console.log(key + ':' + value);
@@ -83,9 +86,11 @@ export class CustomerComponent implements OnInit {
       this.service.add(this.prepareSave()).subscribe(
         response => {
           switch (response.errorCode) {
-            case 0: this.message = "Thêm customer thành công!"; break;
-            case 1: this.message = "Customer này đã tồn tại rồi!"; break;
-            case 6: this.message = "Username này đã tồn tại!"; break;
+            case 200: this.message = response.message; break;
+            case 404: this.message = response.message; break;
+            case 601: this.message = response.message; break;
+            case 602: this.message = response.message; break;
+            case 603: this.message = response.message; break;
           }
           this.loadData();
         }
@@ -94,9 +99,11 @@ export class CustomerComponent implements OnInit {
       this.service.update(this.prepareSave(), this.customer.id).subscribe(
         response => {
           switch (response.errorCode) {
-            case 0: this.message = "Cập nhật customer thành công!"; break;
-            case 2: this.message = "Không tìm thấy customer"; break;
-            case 6: this.message = "Username này đã tồn tại"; break;
+            case 200: this.message = response.message; break;
+            case 404: this.message = response.message; break;
+            case 601: this.message = response.message; break;
+            case 602: this.message = response.message; break;
+            case 603: this.message = response.message; break;
           }
           this.loadData();
         }
@@ -119,8 +126,7 @@ export class CustomerComponent implements OnInit {
   remove(id: number) {
     this.service.remove(id).subscribe(response => {
       switch (response.errorCode) {
-        case 0: this.message = "Xóa customer thành công!"; break;
-        case 2: this.message = "Không tìm thấy customer"; break;
+        case 200: this.message = response.message; break;
       }
       this.loadData();
       $('#modal-remove').modal('hide');
@@ -130,9 +136,9 @@ export class CustomerComponent implements OnInit {
     let content = $('#search-info').val();
     let item = 0;
     for (item; item < this.list.length; item++) {
-      if (this.list[item].firstName === content || 
+      if (this.list[item].firstName === content ||
         this.list[item].lastName === content ||
-         this.list[item].username === content) {
+        this.list[item].username === content) {
         this.customer = this.list[item];
         break;
       }
@@ -144,5 +150,4 @@ export class CustomerComponent implements OnInit {
       $('#modal-search').modal('show');
     }
   }
-  
 }

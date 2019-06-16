@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
-import { AdminService, Admin, AdminResponse } from 'src/app/services/admin.service';
+import { AdminService, Admin, AdminResponse, ChangePassword } from 'src/app/services/admin.service';
 
 declare var $: any;
 
@@ -13,16 +13,20 @@ export class AdminComponent implements OnInit {
 
   admin: Admin = {} as Admin;
   list: Admin[] = [];
-  res: AdminResponse = {} as AdminResponse;
+  listRemoved: Admin[] = [];
   message: String;
   fileChosen: string = "Choose file";
   form: FormGroup;
+  imageTemplate: Node;
+  passwordObject: ChangePassword = {} as ChangePassword;
+  hasInform: boolean = false;
 
   constructor(private service: AdminService, private formBuilder: FormBuilder) { }
 
   ngOnInit() {
     this.createForm();
     this.loadData();
+    this.loadDataRemoved();
   }
   createForm() {
     this.form = this.formBuilder.group({
@@ -37,18 +41,24 @@ export class AdminComponent implements OnInit {
     this.admin.name = this.form.get('name').value;
     this.admin.email = this.form.get('email').value;
     this.admin.username = this.form.get('username').value;
-    this.admin.password = this.form.get('password').value;
+    if (this.admin.id === undefined && this.admin.id === 0) {
+      this.admin.password = this.form.get('password').value;
+    }
     this.admin.imageName = this.form.get('file').value;
   }
-  public prepareSave(): any {
+  prepareSave(): any {
     const formModel = this.form.value;
     let fd = new FormData();
 
-    fd.append("id", this.admin.id.toString());
+    if (this.admin.id !== undefined && this.admin.id !== 0) {
+      fd.append("id", this.admin.id.toString());
+    } else {
+      fd.append("password", formModel.password);
+    }
+
     fd.append("name", formModel.name);
     fd.append("email", formModel.email);
     fd.append("username", formModel.username);
-    fd.append("password", formModel.password);
     fd.append("file", formModel.file);
     // fd.forEach(function (value, key, parent) {
     //   console.log(key + ':' + value);
@@ -56,44 +66,75 @@ export class AdminComponent implements OnInit {
 
     return fd;
   }
-  // thay đổi sau mỗi lần nhập file
-  public onFileSelect(files: FileList) {
+  onFileSelect(files: FileList) {
     if (files && files[0].size > 0) {
       this.form.get('file').patchValue(files[0]);
     }
+    // console.log(document.getElementById('imageFrame'));
+    if (document.getElementById('img-1') != null) {
+      this.imageTemplate = document.getElementById('img-1');
+      document.getElementById('img-1').hidden;
+    }
+    if (document.getElementById('img-2') != null) {
+      document.getElementById('img-2').parentElement.hidden;
+    }
+
     // Đọc lấy đường dẫn file đã chọn (base64String), tạo fragment rồi hiển thị lên
     // Vì trình duyệt ngăn việc lấy full path image
-    //
-    // for (var i = 0, f; f = files[i]; i++) {
-    //   if (!f.type.match('image.*')) {
-    //     continue;
-    //   }
-    //   let reader = new FileReader();
-    //   reader.onload = (function (theFile) {
-    //     return function (e) {
-    //       var span = document.createElement('span');
-    //       span.innerHTML = [
-    //         '<img class="w-100 rounded img-fluid img-thumbnail" ',
-    //         'src="', e.target.result, '" ',
-    //         'title="', escape(theFile.name), '"/>'
-    //       ].join('');
-    //       document.getElementById('imageFrame').innerHTML = "";
-    //       document.getElementById('imageFrame').insertBefore(span, null);
-    //     };
-    //   })(f);
-    //   reader.readAsDataURL(f);
-    // }
+
+    for (var i = 0, f; f = files[i]; i++) {
+      if (!f.type.match('image.*')) {
+        continue;
+      }
+      let reader = new FileReader();
+      reader.onload = (function (theFile) {
+        return function (e) {
+          var span = document.createElement('span');
+          span.innerHTML = [
+            '<img id="img-2" class="w-100 rounded img-fluid img-thumbnail" ',
+            'src="', e.target.result, '" ',
+            'title="', escape(theFile.name), '"/>'
+          ].join('');
+          document.getElementById('imageFrame').innerHTML = "";
+          document.getElementById('imageFrame').insertBefore(span, null);
+        };
+      })(f);
+      reader.readAsDataURL(f);
+    }
   }
-  onSubmit() {
+  showModalEditAdmin(event: any = null, id: number = 0) {
+    if (event) {
+      event.preventDefault();
+    }
+    if (id > 0) {
+      this.service.get(id).subscribe(response => { this.admin = response.data; });
+    }
+    else {
+      this.admin = {} as Admin;
+    }
+  }
+  showModalRemoveAdmin(id: number) {
+    this.admin.id = id;
+    this.message = "Bạn có thật sự muốn xóa Admin này?";
+  }
+  showModalChangePassword($event: any) {
+    this.passwordObject = {} as ChangePassword;
+  }
+  showModalRestoreAdmin(id: number) {
+    this.admin.id = id;
+    this.message = "Bạn có chắc chắn muốn khôi phục admin này?";
+  }
+  submitFormEditModal() {
     this.setUser();
 
     if (this.admin.id === undefined || this.admin.id === 0) {
       this.service.add(this.prepareSave()).subscribe(
         response => {
           switch (response.errorCode) {
-            case 0: this.message = "Thêm admin thành công!"; break;
-            case 1: this.message = "Admin này đã tồn tại rồi!"; break;
-            case 6: this.message = "Username này đã tồn tại!"; break;
+            case 200: this.message = "Lưu thành công!"; break;
+            case 404: this.message = "Không tìm thấy!"; break;
+            case 601: this.message = "Username này đã tồn tại!"; break;
+            case 603: this.message = "Username\nPassword\nKhông được phép bỏ trống!"; break;
           }
           this.loadData();
         }
@@ -102,9 +143,10 @@ export class AdminComponent implements OnInit {
       this.service.update(this.prepareSave(), this.admin.id).subscribe(
         response => {
           switch (response.errorCode) {
-            case 0: this.message = "Cập nhật admin thành công!"; break;
-            case 2: this.message = "Không tìm thấy admin"; break;
-            case 6: this.message = "Username này đã tồn tại"; break;
+            case 200: this.message = "Lưu thành công!"; break;
+            case 404: this.message = "Không tìm thấy!"; break;
+            case 601: this.message = "Username này đã tồn tại!"; break;
+            case 603: this.message = "Username\nPassword\nKhông được phép bỏ trống!"; break;
           }
           this.loadData();
         }
@@ -123,28 +165,31 @@ export class AdminComponent implements OnInit {
     //   }
     // });
   }
+  closeEditModal($event: any = null) {
+    if (document.getElementById('img-2') != null) {
+      document.getElementById('img-2').parentElement.remove();
+    }
+    if (this.imageTemplate != null) {
+      document.getElementById('imageFrame').appendChild(this.imageTemplate);
+    }
+  }
   loadData() {
     this.service.getAll().subscribe(response => { this.list = response.data; });
   }
-  getAdmin(id: number) {
-    this.service.get(id).subscribe(response => { this.admin = response.data; });
+  loadDataRemoved() {
+    this.service.getAllRemoved().subscribe(response => { this.listRemoved = response.data; });
   }
-  OK($event: any) {
-    // $('#modal-edit').modal('hide');
-    $('#modal-inform').modal('hide');
+  restoreAdmin(id: number) {
+    this.service.restoreAdmin(id).subscribe(response => {
+      this.loadData();
+      this.loadDataRemoved();
+    });
   }
   removeAdmin(id: number) {
-    this.admin.id = id;
-    this.message = "Bạn có thật sự muốn xóa Admin này?";
-  }
-  remove(id: number) {
     this.service.remove(id).subscribe(response => {
-      switch (response.errorCode) {
-        case 0: this.message = "Xóa admin thành công!"; break;
-        case 2: this.message = "Không tìm thấy admin"; break;
-      }
       this.loadData();
       $('#modal-remove').modal('hide');
+      this.loadDataRemoved();
     });
   }
   search($event: any) {
@@ -163,33 +208,49 @@ export class AdminComponent implements OnInit {
       $('#modal-search').modal('show');
     }
   }
-  handleFileSelect($event: any) {
-    this.fileChosen = $event.target.files[0].name;
-    var files = $event.target.files;
-    for (var i = 0, f; f = files[i]; i++) {
-      // Only process image files.
-      if (!f.type.match('image.*')) {
-        continue;
+  changePasword($event: any) {
+    this.service.updatePassword(this.passwordObject, this.admin.id).subscribe(
+      response => {
+        switch (response.errorCode) {
+          case 200: this.hasInform = true; this.message = "Cập nhật mật khẩu thành công!"; break;
+          case 603: this.hasInform = true; this.message = "Không được để trống!"; break;
+          case 604: this.hasInform = true; this.message = "Mật khẩu cũ không đúng!"; break;
+          case 605: this.hasInform = true; this.message = "Xác nhận mật khẩu không khớp!"; break;
+        }
+        console.log(this.message);
       }
-
-      var reader = new FileReader();
-
-      // Closure to capture the file information.
-      reader.onload = (function (theFile) {
-        return function (e) {
-          var span = document.createElement('span');
-          span.innerHTML = [
-            '<img class="w-100 rounded img-fluid img-thumbnail" ',
-            'src="', e.target.result, '" ',
-            'title="', escape(theFile.name), '"/>'
-          ].join('');
-          document.getElementById('imageFrame').innerHTML = "";
-          document.getElementById('imageFrame').insertBefore(span, null);
-        };
-      })(f);
-      // Read in the image file as a data URL.
-      reader.readAsDataURL(f);
-    }
-    // console.log(document.querySelector('#imageFrame span > img'));
+    );
   }
+  changeStageInformPasword($event = null) {
+    this.hasInform = false;
+  }
+  // handleFileSelect($event: any) {
+  //   this.fileChosen = $event.target.files[0].name;
+  //   var files = $event.target.files;
+  //   for (var i = 0, f; f = files[i]; i++) {
+  //     // Only process image files.
+  //     if (!f.type.match('image.*')) {
+  //       continue;
+  //     }
+
+  //     var reader = new FileReader();
+
+  //     // Closure to capture the file information.
+  //     reader.onload = (function (theFile) {
+  //       return function (e) {
+  //         var span = document.createElement('span');
+  //         span.innerHTML = [
+  //           '<img class="w-100 rounded img-fluid img-thumbnail" ',
+  //           'src="', e.target.result, '" ',
+  //           'title="', escape(theFile.name), '"/>'
+  //         ].join('');
+  //         document.getElementById('imageFrame').innerHTML = "";
+  //         document.getElementById('imageFrame').insertBefore(span, null);
+  //       };
+  //     })(f);
+  //     // Read in the image file as a data URL.
+  //     reader.readAsDataURL(f);
+  //   }
+  //   // console.log(document.querySelector('#imageFrame span > img'));
+  // }
 }

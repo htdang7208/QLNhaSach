@@ -7,15 +7,13 @@ using System.Threading.Tasks;
 
 namespace QLNhaSach.Models
 {
-    [Table("Receipt")]
-    public class RECEIPT
+    [Table("Sale")]
+    public class SALE
     {
         [Key]
         public int id { get; set; }
         public int customerId { get; set; }
         public DateTime dateCreated { get; set; }
-        public double total { get; set; }
-        public double customerPaid { get; set; }
         public bool isRemove { get; set; }
 
         [ForeignKey("customerId")]

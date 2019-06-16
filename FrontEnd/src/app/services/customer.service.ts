@@ -13,9 +13,11 @@ export interface Customer {
   address: string,
   username: string,
   password: string,
-  dept: string,
+  oldDept: number,
+  nowDept: number,
   imageName: string,
-  url: string
+  url: string,
+  isRemove: boolean
 }
 export interface CustomerResponse {
   errorCode: number,

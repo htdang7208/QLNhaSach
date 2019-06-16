@@ -37,13 +37,15 @@ namespace QLNhaSach.Controllers
                 .Select(r => new CustomerReceiptInfo
                 {
                     id = r.id,
+                    customerId = r.customerId,
                     firstName = r.CUSTOMER.firstName,
                     lastName = r.CUSTOMER.lastName,
                     phone = r.CUSTOMER.phone,
                     email = r.CUSTOMER.email,
                     address = r.CUSTOMER.address,
-                    datePaid = r.datePaid,
-                    payment = r.payment
+                    dateCreated = r.dateCreated,
+                    customerPaid = r.customerPaid,
+                    total = r.total
                 }).ToListAsync()
             };
         }
@@ -53,80 +55,51 @@ namespace QLNhaSach.Controllers
             return new BaseResponse
             {
                 ErrorCode = Roles.Success,
-                Data = await _context.RECEIPTS.Where(x => x.isRemove == false && x.id == id)
+                Data = await _context.RECEIPTS.Where(re => re.isRemove == false && re.id == id)
                 .Include(c => c.CUSTOMER)
-                .Where(x => x.customerId == x.CUSTOMER.id)
-                .Select(r => new CustomerReceiptInfo
+                .Where(re => re.customerId == re.CUSTOMER.id)
+                .Select(re => new CustomerReceiptInfo
                 {
-                    id = r.id,
-                    firstName = r.CUSTOMER.firstName,
-                    lastName = r.CUSTOMER.lastName,
-                    phone = r.CUSTOMER.phone,
-                    email = r.CUSTOMER.email,
-                    address = r.CUSTOMER.address,
-                    datePaid = r.datePaid,
-                    payment = r.payment
+                    id = re.id,
+                    firstName = re.CUSTOMER.firstName,
+                    lastName = re.CUSTOMER.lastName,
+                    phone = re.CUSTOMER.phone,
+                    email = re.CUSTOMER.email,
+                    address = re.CUSTOMER.address,
+                    dateCreated = re.dateCreated,
+                    customerPaid = re.customerPaid,
+                    total = re.total
                 }).ToListAsync()
             };
         }
         [HttpPost]
-        public async Task<ActionResult<BaseResponse>> Post([FromForm] CustomerReceiptInfo infoEnter)
+        public async Task<ActionResult<BaseResponse>> Post([FromForm] CustomerReceiptInfo data)
         {
             RECEIPT receipt = new RECEIPT();
-            if(string.IsNullOrEmpty(infoEnter.firstName) ||
-                string.IsNullOrEmpty(infoEnter.lastName) ||
-                string.IsNullOrEmpty(infoEnter.phone) ||
-                string.IsNullOrEmpty(infoEnter.email) ||
-                string.IsNullOrEmpty(infoEnter.address) ||
-                infoEnter.datePaid == null ||
-                infoEnter.payment == 0)
+            var customer = await _context.CUSTOMERS.Where(cus => cus.phone == data.phone).FirstOrDefaultAsync();
+            if (customer != null && customer.isRemove == false)
             {
-                return new BaseResponse
+                // Không được phép thu tiền vượt quá số tiền khách đang nợ
+                Roles policy = new Roles();
+                if (!policy.GetOverDept)
                 {
-                    ErrorCode = Roles.Empty_Receipt,
-                    Message = "Some fields is empty!"
-                };
-            }
-            else
-            {
-                var customer = await _context.CUSTOMERS.Where(x => x.phone == infoEnter.phone).FirstOrDefaultAsync();
-                // Khách hàng nãy đã tồn tại trong csdl
-                if(customer != null && customer.isRemove == false)
-                {
-                    // Không được phép thu tiền vượt quá số tiền khách đang nợ
-                    Roles policy = new Roles();
-                    if(!policy.GetOverDept)
+                    if (data.customerPaid > customer.oldDept)
                     {
-                        receipt.customerId = customer.id;
-                        receipt.datePaid = infoEnter.datePaid;
-                        if(infoEnter.payment > customer.dept)
+                        return new BaseResponse
                         {
-                            return new BaseResponse
-                            {
-                                ErrorCode = Roles.Get_Over_Dept,
-                                Message = "Getting money is not over the money customer has been depted!"
-                            };
-                        }
-                        else
-                        {
-                            receipt.payment = infoEnter.payment;
-                            customer.dept -= infoEnter.payment;
-                            _context.CUSTOMERS.Update(customer);
-                            _context.RECEIPTS.Add(receipt);
-                            await _context.SaveChangesAsync();
-                            return new BaseResponse
-                            {
-                                ErrorCode = Roles.Success,
-                                Message = "A receipt has just created!"
-                            };
-                        }
+                            ErrorCode = Roles.Get_Over_Dept,
+                            Message = "Getting money is not over the money customer has been depted!"
+                        };
                     }
                     else
                     {
+                        double res = data.customerPaid - data.total;
+
                         receipt.customerId = customer.id;
-                        receipt.datePaid = infoEnter.datePaid;
-                        receipt.payment = infoEnter.payment;
-                        customer.dept -= infoEnter.payment;
+                        receipt.dateCreated = data.dateCreated;
+                        receipt.total = data.total;
+                        receipt.customerPaid = data.customerPaid;
+                        customer.nowDept = res > 0 ? Math.Abs(res - customer.oldDept) : customer.oldDept + Math.Abs(res);
                         _context.CUSTOMERS.Update(customer);
                         _context.RECEIPTS.Add(receipt);
                         await _context.SaveChangesAsync();
@@ -137,28 +110,18 @@ namespace QLNhaSach.Controllers
                         };
                     }
                 }
-                // Thêm khách hàng mới
                 else
                 {
-                    customer = new CUSTOMER();
-                    customer.firstName = infoEnter.firstName;
-                    customer.lastName = infoEnter.lastName;
-                    customer.phone = infoEnter.phone;
-                    customer.email = infoEnter.email;
-                    customer.address = infoEnter.address;
-                    customer.username = null;
-                    customer.password = null;
-                    customer.imageName = null;
-                    customer.url = null;
-                    customer.isRemove = false;
-                    _context.CUSTOMERS.Add(customer);
+                    double res = data.customerPaid - data.total;
 
-                    receipt.datePaid = infoEnter.datePaid;
-                    receipt.payment = infoEnter.payment;
-                    receipt.isRemove = false;
+                    receipt.customerId = customer.id;
+                    receipt.dateCreated = data.dateCreated;
+                    receipt.total = data.total;
+                    receipt.customerPaid = data.customerPaid;
+                    customer.nowDept = res > 0 ? Math.Abs(res - customer.oldDept) : customer.oldDept + Math.Abs(res);
+                    _context.CUSTOMERS.Update(customer);
                     _context.RECEIPTS.Add(receipt);
                     await _context.SaveChangesAsync();
-
                     return new BaseResponse
                     {
                         ErrorCode = Roles.Success,
@@ -166,83 +129,98 @@ namespace QLNhaSach.Controllers
                     };
                 }
             }
+            // Khách hàng này chưa có trong csdl
+            else
+            {
+                customer = new CUSTOMER();
+                customer.firstName = data.firstName;
+                customer.lastName = data.lastName;
+                customer.phone = data.phone;
+                customer.email = data.email;
+                customer.address = data.address;
+                customer.username = null;
+                customer.password = null;
+                customer.imageName = null;
+                customer.url = null;
+                customer.oldDept = 0;
+                customer.nowDept = 0;
+                customer.isRemove = false;
+                _context.CUSTOMERS.Add(customer);
+
+                receipt.dateCreated = data.dateCreated;
+                receipt.total = data.total;
+                receipt.isRemove = false;
+                _context.RECEIPTS.Add(receipt);
+                await _context.SaveChangesAsync();
+
+                return new BaseResponse
+                {
+                    ErrorCode = Roles.Success,
+                    Message = "A receipt has just created!"
+                };
+            }
         }
         [HttpPut]
-        public async Task<ActionResult<BaseResponse>> Put([FromForm] CustomerReceiptInfo infoEnter)
+        public async Task<ActionResult<BaseResponse>> Put([FromForm] CustomerReceiptInfo data)
         {
-            RECEIPT receipt = await _context.RECEIPTS.Where(x => x.id == infoEnter.id && x.isRemove == false).FirstOrDefaultAsync();
-            if (string.IsNullOrEmpty(infoEnter.firstName) ||
-                string.IsNullOrEmpty(infoEnter.lastName) ||
-                string.IsNullOrEmpty(infoEnter.phone) ||
-                string.IsNullOrEmpty(infoEnter.email) ||
-                string.IsNullOrEmpty(infoEnter.address) ||
-                infoEnter.datePaid == null ||
-                infoEnter.payment == 0)
+            if(data.total == 0 || data.customerPaid == 0)
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Empty_Receipt,
-                    Message = "Some fields is empty!"
+                    ErrorCode = Roles.Empty_Book_Input,
+                    Message = "Some field is empty!"
                 };
             }
-            else
+            var receipt = await _context.RECEIPTS.Where(re => re.id == data.id).FirstOrDefaultAsync();
+            var customer = await _context.CUSTOMERS.Where(cus => cus.id == data.customerId).FirstOrDefaultAsync();
+            // Không được phép thu tiền vượt quá số tiền khách đang nợ
+            Roles policy = new Roles();
+            if (!policy.GetOverDept)
             {
-                var customer = await _context.CUSTOMERS.Where(x => x.phone == infoEnter.phone).FirstOrDefaultAsync();
-                // Khách hàng nãy đã tồn tại trong csdl
-                if (customer != null && customer.isRemove == false)
-                {
-                    // Không được phép thu tiền vượt quá số tiền khách đang nợ
-                    Roles policy = new Roles();
-                    if (!policy.GetOverDept)
-                    {
-                        receipt.customerId = customer.id;
-                        receipt.datePaid = infoEnter.datePaid;
-                        if (infoEnter.payment > customer.dept)
-                        {
-                            return new BaseResponse
-                            {
-                                ErrorCode = Roles.Get_Over_Dept,
-                                Message = "Getting money is not over the money customer has been depted!"
-                            };
-                        }
-                        else
-                        {
-                            receipt.payment = infoEnter.payment;
-                            customer.dept -= infoEnter.payment;
-                            _context.CUSTOMERS.Update(customer);
-                            _context.RECEIPTS.Add(receipt);
-                            await _context.SaveChangesAsync();
-                            return new BaseResponse
-                            {
-                                ErrorCode = Roles.Success,
-                                Message = "A receipt has just created!"
-                            };
-                        }
-                    }
-                    else
-                    {
-                        receipt.customerId = customer.id;
-                        receipt.datePaid = infoEnter.datePaid;
-                        receipt.payment = infoEnter.payment;
-                        customer.dept -= infoEnter.payment;
-                        _context.CUSTOMERS.Update(customer);
-                        _context.RECEIPTS.Add(receipt);
-                        await _context.SaveChangesAsync();
-                        return new BaseResponse
-                        {
-                            ErrorCode = Roles.Success,
-                            Message = "A receipt has just created!"
-                        };
-                    }
-                }
-                else
+                if (data.customerPaid > customer.oldDept)
                 {
                     return new BaseResponse
                     {
-                        ErrorCode = Roles.NotFound,
-                        Message = "Not find this customer!"
+                        ErrorCode = Roles.Get_Over_Dept,
+                        Message = "Getting money is not over the money customer has been depted!"
                     };
                 }
+                else
+                {
+                    double res = data.customerPaid - data.total;
+
+                    receipt.customerId = customer.id;
+                    receipt.dateCreated = data.dateCreated;
+                    receipt.total = data.total;
+                    receipt.customerPaid = data.customerPaid;
+                    customer.nowDept = res > 0 ? Math.Abs(res - customer.oldDept) : customer.oldDept + Math.Abs(res);
+                    _context.CUSTOMERS.Update(customer);
+                    _context.RECEIPTS.Add(receipt);
+                    await _context.SaveChangesAsync();
+                    return new BaseResponse
+                    {
+                        ErrorCode = Roles.Success,
+                        Message = "A receipt has just updated!"
+                    };
+                }
+            }
+            else
+            {
+                double res = data.customerPaid - data.total;
+
+                receipt.customerId = customer.id;
+                receipt.dateCreated = data.dateCreated;
+                receipt.total = data.total;
+                receipt.customerPaid = data.customerPaid;
+                customer.nowDept = res > 0 ? Math.Abs(res - customer.oldDept) : customer.oldDept + Math.Abs(res);
+                _context.CUSTOMERS.Update(customer);
+                _context.RECEIPTS.Add(receipt);
+                await _context.SaveChangesAsync();
+                return new BaseResponse
+                {
+                    ErrorCode = Roles.Success,
+                    Message = "A receipt has just updated!"
+                };
             }
         }
         [HttpDelete("{id}")]

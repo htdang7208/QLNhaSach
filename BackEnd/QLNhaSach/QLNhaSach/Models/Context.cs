@@ -15,5 +15,7 @@ namespace QLNhaSach.Models
         public virtual DbSet<INPUT> INPUTS { get; set; }
         public virtual DbSet<INPUTDETAIL> INPUTDETAILS { get; set; }
         public virtual DbSet<RECEIPT> RECEIPTS { get; set; }
+        public virtual DbSet<SALE> SALES { get; set; }
+        public virtual DbSet<SALEDETAIL> SALEDETAILS { get; set; }
     }
 }

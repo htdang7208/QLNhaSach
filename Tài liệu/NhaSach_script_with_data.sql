@@ -126,23 +126,24 @@ insert into Receipt values (2, '01/02/2020', 300000)
 insert into Receipt values (3, '01/03/2020', 150000)
 insert into Receipt values (4, '01/04/2020', 50000)
 
-if OBJECT_ID('SaleInvoice', 'U') is not null
-	drop table SaleInvoice
+if OBJECT_ID('Sale', 'U') is not null
+	drop table Sale
 else
 begin
-	create table SaleInvoice
+	create table Sale
 	(
 		id int identity not null primary key,	--OR001
 		customerId int,
-		dateSold datetime
+		dateSold datetime,
+		isRemove bit
 	)
 end
 go
-alter table SaleInvoice add constraint FK_SaleInvoice_Customer foreign key(customerId) references Customer(id)
-insert into SaleInvoice values (1, '12/12/2019')
-insert into SaleInvoice values (2, '12/11/2019')
-insert into SaleInvoice values (3, '12/10/2019')
-insert into SaleInvoice values (4, '12/09/2019')
+alter table Sale add constraint FK_Sale_Customer foreign key(customerId) references Customer(id)
+insert into Sale values (1, '12/12/2019', 'false')
+insert into Sale values (2, '12/11/2019', 'false')
+insert into Sale values (3, '12/10/2019', 'false')
+insert into Sale values (4, '12/09/2019', 'false')
 
 if OBJECT_ID('SaleDetail', 'U') is not null
 	drop table SaleDetail
@@ -151,28 +152,28 @@ begin
 	create table SaleDetail
 	(
 		stt int not null,
-		saleInvoiceId int not null,
+		saleId int not null,
 		bookId int not null,
 		amount int,
 		totalPrice float,
-		primary key(stt, saleInvoiceId, bookId)
+		primary key(stt, saleId, bookId)
 	)
 end
 go
-alter table SaleDetail add constraint FK_SaleDetail_SaleInvoice foreign key(saleInvoiceId) references SaleInvoice(id)
+alter table SaleDetail add constraint FK_SaleDetail_Sale foreign key(saleId) references Sale(id)
 alter table SaleDetail add constraint FK_SaleDetail_Book foreign key(bookId) references Book(id)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (1, 1, 1, 1, 25000)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (2, 1, 2, 1, 25000)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (3, 1, 6, 1, 25000)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (4, 1, 8, 1, 25000)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (1, 2, 6, 2, 50000)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (2, 2, 4, 1, 25000)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (3, 2, 9, 1, 100000)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (1, 3, 4, 1, 25000)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (2, 3, 2, 1, 25000)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (1, 4, 15, 1, 50000)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (2, 4, 16, 1, 50000)
-insert into SaleDetail (stt, saleInvoiceId, bookId, amount, totalPrice) values (3, 4, 5, 1, 25000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (1, 1, 1, 1, 25000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (2, 1, 2, 1, 25000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (3, 1, 6, 1, 25000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (4, 1, 8, 1, 25000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (1, 2, 6, 2, 50000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (2, 2, 4, 1, 25000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (3, 2, 9, 1, 100000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (1, 3, 4, 1, 25000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (2, 3, 2, 1, 25000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (1, 4, 15, 1, 50000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (2, 4, 16, 1, 50000)
+insert into SaleDetail (stt, saleId, bookId, amount, totalPrice) values (3, 4, 5, 1, 25000)
 
 if OBJECT_ID('Input', 'U') is not null
 	drop table Input

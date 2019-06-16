@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Admins\" />
     <Folder Include="wwwroot\Customers\" />
     <Folder Include="wwwroot\Books\" />
   </ItemGroup>
