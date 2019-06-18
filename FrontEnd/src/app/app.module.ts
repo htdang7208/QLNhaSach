@@ -17,6 +17,7 @@ import { BookReportComponent } from './views/pages/book-report/book-report.compo
 import { LoginComponent } from './views/login/login.component';
 import { SaleComponent } from './views/pages/sale/sale.component';
 import { DeptReportComponent } from './views/pages/dept-report/dept-report.component';
+import { RoleComponent } from './views/pages/role/role.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { DeptReportComponent } from './views/pages/dept-report/dept-report.compo
     BookReportComponent,
     LoginComponent,
     SaleComponent,
-    DeptReportComponent
+    DeptReportComponent,
+    RoleComponent
   ],
   imports: [
     BrowserModule,
@@ -45,7 +47,8 @@ import { DeptReportComponent } from './views/pages/dept-report/dept-report.compo
       {path: 'sale', component: SaleComponent, data: {title: "Sale"}},
       {path: 'receipt', component: ReceiptComponent, data: {title: "Receipt"}},
       {path: 'book-report', component: BookReportComponent, data: {title: "Book Report"}},
-      {path: 'dept-report', component: BookReportComponent, data: {title: "Dept Report"}}
+      {path: 'dept-report', component: BookReportComponent, data: {title: "Dept Report"}},
+      {path: 'role', component: RoleComponent, data: {title: "Role"}}
     ])
   ],
   providers: [],

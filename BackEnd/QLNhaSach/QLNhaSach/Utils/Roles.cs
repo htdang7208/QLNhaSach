@@ -2,12 +2,11 @@
 {
     public class Roles
     {
-        private int _MaxBookStock;
-        public int MaxBookStock { get; set; }
-        private int _MinBookInput;
-        public int MinBookInput { get; set; }
-        private bool _GetOverDept;
-        public bool GetOverDept { get; set; }
+        public static int MaxBookStock = 300;
+        public static int MinBookInput = 150;
+        public static bool GetOverDept = true;
+        public static double DeptOver = 20000;
+        public static int StockMax = 20;
 
         public static int NotFound = 404;
         public static int Success = 200;
@@ -45,12 +44,6 @@
         public static int Empty_Customer_Total = 24;
         public static int Empty_Customer_Paid = 25;
 
-
-        public Roles()
-        {
-            this.MaxBookStock = 300;
-            this.MinBookInput = 150;
-            this.GetOverDept = true;
-        }
+        
     }
 }

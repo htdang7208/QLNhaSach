@@ -176,22 +176,21 @@ namespace QLNhaSach.Controllers
                 }
                 else
                 {
-                    // check policy
-                    var policy = new Roles();
-                    if (book.stock > policy.MaxBookStock)
+                    // check Roles
+                    if (book.stock > Roles.MaxBookStock)
                     {
                         return new BaseResponse
                         {
                             ErrorCode = Roles.OverflowMaxStock,
-                            Message = policy.MaxBookStock + ""
+                            Message = Roles.MaxBookStock + ""
                         };
                     }
-                    else if (book.stock < policy.MinBookInput)
+                    else if (book.stock < Roles.MinBookInput)
                     {
                         return new BaseResponse
                         {
                             ErrorCode = Roles.NotEnoughMinStock,
-                            Message = policy.MinBookInput + ""
+                            Message = Roles.MinBookInput + ""
                         };
                     }
 

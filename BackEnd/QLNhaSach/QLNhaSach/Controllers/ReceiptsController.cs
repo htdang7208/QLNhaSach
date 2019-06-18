@@ -81,8 +81,7 @@ namespace QLNhaSach.Controllers
             if (customer != null && customer.isRemove == false)
             {
                 // Không được phép thu tiền vượt quá số tiền khách đang nợ
-                Roles policy = new Roles();
-                if (!policy.GetOverDept)
+                if (!Roles.GetOverDept)
                 {
                     if (data.customerPaid > customer.oldDept)
                     {
@@ -181,8 +180,7 @@ namespace QLNhaSach.Controllers
             var receipt = await _context.RECEIPTS.Where(re => re.id == data.id).FirstOrDefaultAsync();
             var customer = await _context.CUSTOMERS.Where(cus => cus.id == data.customerId).FirstOrDefaultAsync();
             // Không được phép thu tiền vượt quá số tiền khách đang nợ
-            Roles policy = new Roles();
-            if (!policy.GetOverDept)
+            if (!Roles.GetOverDept)
             {
                 if (data.customerPaid > customer.oldDept)
                 {

@@ -118,13 +118,12 @@ namespace QLNhaSach.Controllers
                     };
                 }
                 // check policy
-                Roles policy = new Roles();
-                if (list[i].amount < policy.MinBookInput)
+                if (list[i].amount < Roles.MinBookInput)
                 {
                     return new BaseResponse
                     {
                         ErrorCode = Roles.NotEnoughMinStock,
-                        Message = policy.MinBookInput + ""
+                        Message = Roles.MinBookInput + ""
                     };
                 }
                 BOOK b = new BOOK();
@@ -198,23 +197,22 @@ namespace QLNhaSach.Controllers
                         ErrorCode = Roles.Existed_Book
                     };
                 }
-                // check policy
+                // check Roles
                 book = await _context.BOOKS.FindAsync(list[i].bookId);
-                var policy = new Roles();
-                if (book.stock > policy.MaxBookStock)
+                if (book.stock > Roles.MaxBookStock)
                 {
                     return new BaseResponse
                     {
                         ErrorCode = Roles.OverflowMaxStock,
-                        Message = policy.MaxBookStock + ""
+                        Message = Roles.MaxBookStock + ""
                     };
                 }
-                else if (list[i].amount < policy.MinBookInput)
+                else if (list[i].amount < Roles.MinBookInput)
                 {
                     return new BaseResponse
                     {
                         ErrorCode = Roles.NotEnoughMinStock,
-                        Message = policy.MinBookInput + ""
+                        Message = Roles.MinBookInput + ""
                     };
                 }
                 book.name = list[i].name;

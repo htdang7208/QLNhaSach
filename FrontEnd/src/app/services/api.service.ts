@@ -16,6 +16,7 @@ export class ApiService {
     sales: this.baseUrl + "sales",
     receipts: this.baseUrl + "receipts",
     bookReports: this.baseUrl + "bookReports",
-    deptReports: this.baseUrl + "deptReports"
+    deptReports: this.baseUrl + "deptReports",
+    changeRoles: this.baseUrl + "changeRoles"
   }
 }

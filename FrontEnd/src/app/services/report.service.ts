@@ -25,6 +25,13 @@ export interface DeptReportResponse {
   message: string,
   data: DeptReport
 }
+export interface Roles {
+  maxBookStock: number,
+  minBookInput: number,
+  getOverDept: boolean,
+  deptOver: number,
+  stockMax: number
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -36,5 +43,11 @@ export class ReportService {
   }
   getDeptReport(): Observable<DeptReportResponse> {
     return this.http.get<DeptReportResponse>(`${this.api.apiUrl.deptReports}`);
+  }
+  getRoles(): Observable<Roles> {
+    return this.http.get<Roles>(`${this.api.apiUrl.changeRoles}`);
+  }
+  changeRoles(data: Roles) {
+    return this.http.post(`${this.api.apiUrl.changeRoles}`, data);
   }
 }
