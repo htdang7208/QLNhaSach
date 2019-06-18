@@ -23,28 +23,29 @@ namespace QLNhaSach.Controllers
         [HttpGet]
         public async Task<ActionResult<BaseResponse>> Get()
         {
-            BookReport report = new BookReport();
-            ListBookReport list = new ListBookReport();
+            
+            List<BookReport> list = new List<BookReport>();
             var books = await _context.BOOKS.ToListAsync();
-            for(int i = 0; i < books.Count; i++)
+            for(int i = 1; i < books.Count; i++)
             {
-                var totalAmount = 0;
+                int totalAmount = 0;
                 var input = await _context.INPUTS.Where(x => x.bookId == books[i].id).ToListAsync();
                 for (int j = 0; j < input.Count; j++)
                 {
                     totalAmount += input[j].amount;
                 }
+                BookReport report = new BookReport();
                 report.name = books[i].name;
                 report.nowStock = books[i].stock;
                 report.oldStock = books[i].stock - totalAmount;
                 report.additionalStock = totalAmount;
-                list.listBookReport.Add(report);
+                list.Add(report);
             }
             return new BaseResponse
             {
                 ErrorCode = Roles.Success,
                 Message = "Completed create report!",
-                Data = list.listBookReport
+                Data = list
             };
         }
     }

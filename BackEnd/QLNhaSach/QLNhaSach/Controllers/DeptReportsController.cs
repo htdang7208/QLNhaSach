@@ -23,23 +23,24 @@ namespace QLNhaSach.Controllers
         [HttpGet]
         public async Task<ActionResult<BaseResponse>> Get()
         {
-            DeptReport report = new DeptReport();
-            ListDeptReport list = new ListDeptReport();
+            List<DeptReport> list = new List<DeptReport>();
             var customers = await _context.CUSTOMERS.ToListAsync();
             for (int i = 0; i < customers.Count; i++)
             {
                 var receipt = await _context.RECEIPTS.Where(re => re.customerId == customers[i].id).FirstOrDefaultAsync();
                 double res = Math.Abs(receipt.customerPaid - receipt.total);
+                DeptReport report = new DeptReport();
                 report.name = customers[i].lastName + " " + customers[i].firstName;
                 report.nowDept = customers[i].nowDept;
                 report.additionalDept = res;
                 report.oldDept = customers[i].oldDept;
-                list.listDeptReport.Add(report);
+                list.Add(report);
             }
             return new BaseResponse
             {
                 ErrorCode = Roles.Success,
-                Message = "Completed create report!"
+                Message = "Completed create report!",
+                Data = list
             };
         }
     }

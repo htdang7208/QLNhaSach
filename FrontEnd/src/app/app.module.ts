@@ -13,6 +13,10 @@ import { CustomerComponent } from './views/pages/customer/customer.component';
 import { BookComponent } from './views/pages/book/book.component';
 import { InputComponent } from './views/pages/input/input.component';
 import { ReceiptComponent } from './views/pages/receipt/receipt.component';
+import { BookReportComponent } from './views/pages/book-report/book-report.component';
+import { LoginComponent } from './views/login/login.component';
+import { SaleComponent } from './views/pages/sale/sale.component';
+import { DeptReportComponent } from './views/pages/dept-report/dept-report.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +26,11 @@ import { ReceiptComponent } from './views/pages/receipt/receipt.component';
     CustomerComponent,
     BookComponent,
     InputComponent,
-    ReceiptComponent
+    ReceiptComponent,
+    BookReportComponent,
+    LoginComponent,
+    SaleComponent,
+    DeptReportComponent
   ],
   imports: [
     BrowserModule,
@@ -34,7 +42,10 @@ import { ReceiptComponent } from './views/pages/receipt/receipt.component';
       {path: 'customer', component: CustomerComponent, data: {title: "Customer"}},
       {path: 'book', component: BookComponent, data: {title: "Book"}},
       {path: 'input', component: InputComponent, data: {title: "Input"}},
-      {path: 'receipt', component: ReceiptComponent, data: {title: "Receipt"}}
+      {path: 'sale', component: SaleComponent, data: {title: "Sale"}},
+      {path: 'receipt', component: ReceiptComponent, data: {title: "Receipt"}},
+      {path: 'book-report', component: BookReportComponent, data: {title: "Book Report"}},
+      {path: 'dept-report', component: BookReportComponent, data: {title: "Dept Report"}}
     ])
   ],
   providers: [],

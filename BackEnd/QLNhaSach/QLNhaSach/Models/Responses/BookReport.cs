@@ -9,8 +9,8 @@ namespace QLNhaSach.Models
         public int nowStock { get; set; }
         public int additionalStock { get; set; }
     }
-    public class ListBookReport
-    {
-        public List<BookReport> listBookReport { get; set; }
-    }
+    //public class ListBookReport
+    //{
+    //    public List<BookReport> listBookReport { get; set; }
+    //}
 }

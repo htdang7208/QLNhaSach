@@ -14,8 +14,8 @@ namespace QLNhaSach.Models
         public double nowDept { get; set; }
         public double additionalDept { get; set; }
     }
-    public class ListDeptReport
-    {
-        public List<DeptReport> listDeptReport { get; set; }
-    }
+    //public class ListDeptReport
+    //{
+    //    public List<DeptReport> listDeptReport { get; set; }
+    //}
 }

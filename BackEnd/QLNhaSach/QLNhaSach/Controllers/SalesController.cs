@@ -237,5 +237,56 @@ namespace QLNhaSach.Controllers
                 Message = "Not found!"
             };
         }
+
+        [HttpGet("saleRemoved")]
+        public async Task<ActionResult<BaseResponse>> GetAdminRemoved()
+        {
+            // danh sách chi tiết từng hóa đơn - tổng hợp, trộn lẫn
+            var detail = await _context.SALEDETAILS
+                .Include(s => s.SALE).Include(b => b.BOOK)
+                .Where(x => x.saleId == x.SALE.id && x.SALE.isRemove == true && x.bookId == x.BOOK.id)
+                .Select(i => new SaleDetailInfo
+                {
+                    stt = i.stt,
+                    bookId = i.bookId,
+                    name = i.BOOK.name,
+                    kind = i.BOOK.kind,
+                    price = i.BOOK.price,
+                    amount = i.amount,
+                    saleId = i.SALE.id
+                }).ToListAsync();
+
+            // phân loại lại theo từng id của hóa đơn
+            var listSale = await _context.SALES.Where(x => x.isRemove == true)
+                .Select(i => new SaleResponse
+                {
+                    saleId = i.id,
+                    customerId = i.CUSTOMER.id,
+                    firstName = i.CUSTOMER.firstName,
+                    lastName = i.CUSTOMER.lastName,
+                    listSaleDetailInfo = detail.FindAll(x => x.saleId == i.id)
+                }).ToListAsync();
+
+            return new BaseResponse
+            {
+                ErrorCode = Roles.Success,
+                Data = listSale
+            };
+        }
+
+        [HttpPut("restore/{id}")]
+        public async Task<ActionResult<BaseResponse>> PutRestore(int id)
+        {
+            var valid = await _context.SALES.Where(ad => ad.id == id).FirstOrDefaultAsync();
+            valid.isRemove = false;
+
+            _context.SALES.Update(valid);
+            await _context.SaveChangesAsync();
+            return new BaseResponse
+            {
+                ErrorCode = Roles.Success
+            };
+        }
+
     }
 }
