@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -26,268 +29,244 @@ namespace QLNhaSach.Controllers
         [HttpGet]
         public async Task<ActionResult<BaseResponse>> Get()
         {
-            var detail = await _context.INPUTDETAILS
-                .Include(i => i.INPUT).Include(b => b.BOOK)
-                .Where(x => x.inputId == x.INPUT.id && x.INPUT.isRemove == false && x.bookId == x.BOOK.id)
-                .Select(i => new InputDetailInfo
-                {
-                    stt = i.stt,
-                    name = i.BOOK.name,
-                    kind = i.BOOK.kind,
-                    author = i.BOOK.author,
-                    amount = i.amount,
-                    inputId = i.INPUT.id
-                }).ToListAsync();
-
-            var listInput = await _context.INPUTS.Where(x => x.isRemove == false)
-                .Select(i => new InputResponse
-                {
-                    id = i.id,
-                    listInputInfo = detail.FindAll(x=> x.inputId == i.id),
-                    isRemove = i.isRemove
-                }).ToListAsync();
-
             return new BaseResponse
             {
                 ErrorCode = Roles.Success,
-                Data = listInput
+                Data = await _context.INPUTS
+                .Include(b=>b.BOOK)
+                .Where(x => x.isRemove == false && x.bookId == x.BOOK.id)
+                .Select(s => new InputInfo
+                {
+                    id = s.id,
+                    stt = s.stt,
+                    bookId = s.BOOK.id,
+                    name = s.BOOK.name,
+                    kind = s.BOOK.kind,
+                    author = s.BOOK.author,
+                    amount = s.amount,
+                    isRemove = s.isRemove
+                }).ToListAsync()
             };
         }
-        [HttpGet("{id}")]
-        public async Task<ActionResult<BaseResponse>> Get(int id)
-        {
-            var exists = await _context.INPUTS.FindAsync(id);
-            if (exists != null && exists.isRemove)
-            {
-                return new BaseResponse
-                {
-                    ErrorCode = Roles.Removed,
-                    Message = "Is removed!"
-                };
-            }
-            else if (exists != null)
-            {
-                var detail = await _context.INPUTDETAILS
-                .Include(i => i.INPUT).Include(b => b.BOOK)
-                .Where(x => x.inputId == x.INPUT.id && x.INPUT.isRemove == false && x.bookId == x.BOOK.id)
-                .Select(i => new InputDetailInfo
-                {
-                    stt = i.stt,
-                    name = i.BOOK.name,
-                    kind = i.BOOK.kind,
-                    author = i.BOOK.author,
-                    amount = i.amount,
-                    inputId = i.INPUT.id
-                }).ToListAsync();
 
-                return new BaseResponse
+        [HttpGet("{stt}")]
+        public async Task<ActionResult<BaseResponse>> Get(int stt)
+        {
+            var list = await _context.INPUTS.Include(b => b.BOOK)
+                .Where(x => x.isRemove == false && x.bookId == x.BOOK.id && x.stt == stt)
+                .Select(s => new InputInfo
                 {
-                    ErrorCode = Roles.Success,
-                    Data = await _context.INPUTS.Where(x => x.isRemove == false && x.id == id)
-                    .Select(i => new InputResponse
-                    {
-                        id = i.id,
-                        listInputInfo = detail.FindAll(x => x.inputId == i.id),
-                        isRemove = i.isRemove
-                    }).FirstOrDefaultAsync()
-                };
-            }
+                    id = s.id,
+                    stt = s.stt,
+                    bookId = s.BOOK.id,
+                    name = s.BOOK.name,
+                    kind = s.BOOK.kind,
+                    author = s.BOOK.author,
+                    amount = s.amount,
+                    isRemove = s.isRemove
+                }).ToListAsync();
+           
             return new BaseResponse
             {
                 ErrorCode = Roles.NotFound,
-                Message = "Not found!"
+                Data = list
             };
         }
+
+        [HttpGet("inputRemoved")]
+        public async Task<ActionResult<BaseResponse>> GetInputRemoved()
+        {
+            return new BaseResponse
+            {
+                ErrorCode = Roles.Success,
+                Data = await _context.INPUTS.Where(x => x.isRemove == true).ToListAsync()
+            };
+        }
+
+        public string convertToUnicode(string s)
+        {
+            Regex regex = new Regex("\\p{IsCombiningDiacriticalMarks}+");
+            string temp = s.Normalize(NormalizationForm.FormD);
+            return regex.Replace(temp, String.Empty).Replace('\u0111', 'd').Replace('\u0110', 'D');
+        }
+
         [HttpPost]
-        public async Task<ActionResult<BaseResponse>> Post([FromForm] InputResponse infoEnter)
+        public async Task<ActionResult<BaseResponse>> Post(ListInputInfo listInput)
         {
-            // Thêm một phiếu nhập mới
-            var input = new INPUT { isRemove = false };
-            _context.INPUTS.Add(input);
-            await _context.SaveChangesAsync();
-
-            // Cập nhật phiếu nhập mới
-            var list = infoEnter.listInputInfo;
+            var list = listInput.listInputInfo;
             for (int i = 0; i < list.Count; i++)
             {
-                // Kiểm tra dữ liệu nhập bị trống
-                if(string.IsNullOrEmpty(list[i].name) ||
-                    string.IsNullOrEmpty(list[i].kind) ||
-                    string.IsNullOrEmpty(list[i].author) ||
-                    list[i].amount == 0) {
-                    return new BaseResponse
-                    {
-                        ErrorCode = Roles.Empty_Book_Input,
-                        Message = "Some field is empty!",
-                        Data = null
-                    };
-                }
-                else
-                {
-                    // Sách này đã tồn tại trong kho
-                    var book = await _context.BOOKS.Where(x => x.name == list[i].name).FirstOrDefaultAsync();
-                    if(book != null && book.isRemove == false)
-                    {
-                        // check policy
-                        Roles policy = new Roles();
-                        if (book.stock > policy.MaxBookStock)
-                        {
-                            return new BaseResponse
-                            {
-                                ErrorCode = Roles.OverflowMaxStock,
-                                Message = "Maximum stock: " + policy.MaxBookStock + ". You cannot input!"
-                            };
-                        }
-                        else if (book.stock <= policy.MinBookStock)
-                        {
-                            return new BaseResponse
-                            {
-                                ErrorCode = Roles.NotEnoughMinStock,
-                                Message = "Please input minimum " + policy.MinBookStock + " books!"
-                            };
-                        }
-                        book.stock += list[i].amount;   // Cập nhật số lượng sách
-                        book.kind = list[i].kind;
-                        book.author = list[i].author;
-                        _context.BOOKS.Update(book);
-                        _context.INPUTDETAILS.Add(new INPUTDETAIL   // Thêm 1 inputDetail mới
-                        {
-                            stt = i + 1,
-                            inputId = input.id,
-                            bookId = book.id,
-                            amount = list[i].amount
-                        });
-                        await _context.SaveChangesAsync();  // Lưu thay đổi
-                    }
-                    else
-                    {
-                        // Kho chưa có sách này
-                        book = new BOOK();
-                        book.name = list[i].name;
-                        book.kind = list[i].kind;
-                        book.author = list[i].author;
-                        book.stock = list[i].amount;
-                        book.price = 0;
-                        book.state = true;
-                        book.isRemove = false;
-                        book.imageName = null;
-                        book.url = null;
-                        _context.BOOKS.Add(book);   // Thêm sách mới
-                        _context.INPUTDETAILS.Add(new INPUTDETAIL   // Thêm 1 inputDetail mới
-                        {
-                            stt = i,
-                            inputId = input.id,
-                            bookId = book.id,
-                            amount = list[i].amount
-                        });
-                        await _context.SaveChangesAsync();  // Lưu thay đổi
-                    }
-                }
-            }
-            
-            return new BaseResponse
-            {
-                ErrorCode = Roles.Success,
-                Message = "A book input bill is created!"
-            };
-        }
-        [HttpPut]
-        public async Task<ActionResult<BaseResponse>> Put([FromForm] InputResponse infoEnter)
-        {
-            // Cập nhật phiếu nhập mới
-            var list = infoEnter.listInputInfo;
-            for (int i = 0; i < list.Count; i++)
-            {
-                // Kiểm tra dữ liệu nhập bị trống
                 if (string.IsNullOrEmpty(list[i].name) ||
-                    string.IsNullOrEmpty(list[i].kind) ||
-                    string.IsNullOrEmpty(list[i].author) ||
-                    list[i].amount == 0)
+                 string.IsNullOrEmpty(list[i].kind) ||
+                 string.IsNullOrEmpty(list[i].author) ||
+                 list[i].amount == 0)
                 {
                     return new BaseResponse
                     {
-                        ErrorCode = Roles.Empty_Book_Input,
-                        Message = "Some field is empty!",
-                        Data = null
+                        ErrorCode = Roles.Empty
                     };
                 }
-                else
+                
+                var exists = await _context.BOOKS
+                    .Where(bo => convertToUnicode(bo.name) == convertToUnicode(list[i].name) &&
+                    bo.id != list[i].bookId).FirstOrDefaultAsync();
+                if (exists != null)
                 {
-                    // Sách này đã tồn tại trong kho
-                    var book = await _context.BOOKS.Where(x => x.name == list[i].name).FirstOrDefaultAsync();
-                    if (book != null && book.isRemove == false)
+                    return new BaseResponse
                     {
-                        // check policy
-                        Roles policy = new Roles();
-                        if (book.stock > policy.MaxBookStock)
-                        {
-                            return new BaseResponse
-                            {
-                                ErrorCode = Roles.OverflowMaxStock,
-                                Message = "Maximum stock: " + policy.MaxBookStock + ". You cannot input!"
-                            };
-                        }
-                        else if (book.stock <= policy.MinBookStock)
-                        {
-                            return new BaseResponse
-                            {
-                                ErrorCode = Roles.NotEnoughMinStock,
-                                Message = "Please input minimum " + policy.MinBookStock + " books!"
-                            };
-                        }
-                        book.stock += list[i].amount;  
-                        book.kind = list[i].kind;
-                        book.author = list[i].author;
-                        _context.BOOKS.Update(book);    // Cập nhật sách
-
-                        var inputDetail = await _context.INPUTDETAILS
-                            .Where(x => x.inputId == infoEnter.id && x.stt == list[i].stt).FirstOrDefaultAsync();
-                        inputDetail.amount = list[i].amount;
-                        _context.INPUTDETAILS.Update(inputDetail);    // Cập nhật inputDetail
-
-                        await _context.SaveChangesAsync();  // Lưu thay đổi
-                        return new BaseResponse
-                        {
-                            ErrorCode = Roles.Success,
-                            Message = "Update successfully!"
-                        };
-                    }
-                    else
-                    {
-                        return new BaseResponse
-                        {
-                            ErrorCode = Roles.NotFound,
-                            Message = "Not find this input!"
-                        };
-                    }
+                        ErrorCode = Roles.Existed_Book
+                    };
                 }
+                // check policy
+                Roles policy = new Roles();
+                if (list[i].amount < policy.MinBookInput)
+                {
+                    return new BaseResponse
+                    {
+                        ErrorCode = Roles.NotEnoughMinStock,
+                        Message = policy.MinBookInput + ""
+                    };
+                }
+                BOOK b = new BOOK();
+                b.name = list[i].name;
+                b.kind = list[i].kind;
+                b.author = list[i].author;
+                b.price = 0;
+                b.stock = list[i].amount;
+                b.imageName = "";
+                b.url = "";
+                b.isRemove = false;
+                _context.BOOKS.Add(b);
+                _context.SaveChanges();
+
+                INPUT input = new INPUT();
+                input.stt = list[i].stt;
+                input.bookId = list[i].bookId;
+                input.amount = list[i].amount;
+                input.isRemove = false;
+                _context.INPUTS.Add(input);
+                _context.SaveChanges();
+            }
+
+            return new BaseResponse { ErrorCode = Roles.Success };
+            
+        }
+
+        [HttpPut("{stt}")]
+        public async Task<ActionResult<BaseResponse>> Put(ListInputInfo listInput, int stt)
+        {
+            //var valid = await _context.INPUTS.Include(b => b.BOOK)
+            //    .Where(x => x.isRemove == false && x.bookId == x.BOOK.id && x.stt == stt)
+            //    .Select(s => new InputInfo
+            //    {
+            //        id = s.id,
+            //        stt = s.stt,
+            //        bookId = s.BOOK.id,
+            //        name = s.BOOK.name,
+            //        kind = s.BOOK.kind,
+            //        author = s.BOOK.author,
+            //        amount = s.amount,
+            //        isRemove = s.isRemove
+            //    }).ToListAsync();
+
+            var list = listInput.listInputInfo;
+            //if (valid.Count != list.Count)
+            //{
+            //    return new BaseResponse { ErrorCode = Roles.NotFound };
+            //}
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (string.IsNullOrEmpty(list[i].name) ||
+                 string.IsNullOrEmpty(list[i].kind) ||
+                 string.IsNullOrEmpty(list[i].author) ||
+                 list[i].amount == 0)
+                {
+                    return new BaseResponse
+                    {
+                        ErrorCode = Roles.Empty
+                    };
+                }
+
+                var book = await _context.BOOKS
+                    .Where(bo => convertToUnicode(bo.name) == convertToUnicode(list[i].name) &&
+                    bo.id != list[i].bookId).FirstOrDefaultAsync();
+                if (book != null)
+                {
+                    return new BaseResponse
+                    {
+                        ErrorCode = Roles.Existed_Book
+                    };
+                }
+                // check policy
+                book = await _context.BOOKS.FindAsync(list[i].bookId);
+                var policy = new Roles();
+                if (book.stock > policy.MaxBookStock)
+                {
+                    return new BaseResponse
+                    {
+                        ErrorCode = Roles.OverflowMaxStock,
+                        Message = policy.MaxBookStock + ""
+                    };
+                }
+                else if (list[i].amount < policy.MinBookInput)
+                {
+                    return new BaseResponse
+                    {
+                        ErrorCode = Roles.NotEnoughMinStock,
+                        Message = policy.MinBookInput + ""
+                    };
+                }
+                book.name = list[i].name;
+                book.kind = list[i].kind;
+                book.author = list[i].author;
+                book.stock += list[i].amount;
+                _context.BOOKS.Update(book);
+                _context.SaveChanges();
+
+                INPUT input = new INPUT();
+                input.stt = list[i].stt;
+                input.bookId = list[i].bookId;
+                input.amount = list[i].amount;
+                input.isRemove = false;
+                _context.INPUTS.Update(input);
+                _context.SaveChanges();
+            }
+
+            return new BaseResponse { ErrorCode = Roles.Success };
+        }
+
+        [HttpPut("restore/{stt}")]
+        public async Task<ActionResult<BaseResponse>> PutRestore(int stt)
+        {
+            var list = await _context.INPUTS.Where(i => i.stt == stt).ToListAsync();
+            for(int i = 0; i < list.Count; i++)
+            {
+                list[i].isRemove = false;
+                _context.INPUTS.Update(list[i]);
+                _context.SaveChanges();
             }
 
             return new BaseResponse
             {
-                ErrorCode = Roles.Success,
-                Message = "Book input bill is update!"
+                ErrorCode = Roles.Success
             };
         }
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<BaseResponse>> Delete(int id)
+
+        [HttpDelete("{stt}")]
+        public async Task<ActionResult<BaseResponse>> Delete(int stt)
         {
-            var exists = await _context.INPUTS.FindAsync(id);
-            if (exists != null)
+            var list = await _context.INPUTS.Where(i => i.stt == stt).ToListAsync();
+            for (int i = 0; i < list.Count; i++)
             {
-                exists.isRemove = true;
-                _context.INPUTS.Update(exists);
-                await _context.SaveChangesAsync();
-                return new BaseResponse
-                {
-                    ErrorCode = Roles.Success,
-                    Message = "Deleted!"
-                };
+                list[i].isRemove = true;
+                _context.INPUTS.Update(list[i]);
+                _context.SaveChanges();
             }
+
             return new BaseResponse
             {
-                ErrorCode = Roles.NotFound,
-                Message = "Not found!"
+                ErrorCode = Roles.Success
             };
         }
     }

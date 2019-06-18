@@ -11,6 +11,7 @@ declare var $: any;
 })
 export class CustomerComponent implements OnInit {
 
+  kindSelected: string;
   customer: Customer = {} as Customer;
   list: Customer[] = [];
   listRemoved: Customer[] = [];

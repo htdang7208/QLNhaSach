@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +36,7 @@ namespace QLNhaSach.Controllers
                 Data = await _context.BOOKS.Where(x => x.isRemove == false).ToListAsync()
             };
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<BaseResponse>> Get(int id)
         {
@@ -60,136 +63,99 @@ namespace QLNhaSach.Controllers
                 Message = "Not found!"
             };
         }
-        [HttpPost]
-        public async Task<ActionResult<BaseResponse>> Post([FromForm] BOOK book)
+
+        public string convertToUnicode(string s)
         {
-            if (string.IsNullOrEmpty(book.name))
-            {
-                return new BaseResponse
-                {
-                    ErrorCode = Roles.Empty_Book_Name,
-                    Message = "Empty book name!"
-                };
-            } else if (string.IsNullOrEmpty(book.author))
-            {
-                return new BaseResponse
-                {
-                    ErrorCode = Roles.Empty_Book_Author,
-                    Message = "Empty book author!"
-                };
-            } else if (string.IsNullOrEmpty(book.kind))
-            {
-                return new BaseResponse
-                {
-                    ErrorCode = Roles.Empty_Book_Kind,
-                    Message = "Empty book kind!"
-                };
-            } else if(book.price == 0)
-            {
-                return new BaseResponse
-                {
-                    ErrorCode = Roles.Empty_Book_Price,
-                    Message = "Empty book price!"
-                };
-            } else if(book.stock == 0)
-            {
-                return new BaseResponse
-                {
-                    ErrorCode = Roles.Empty_Book_Stock,
-                    Message = "Empty book stock!"
-                };
-            } else {
-                // check exists
-                var policy = new Roles();
-                var exists = await _context.BOOKS.Where(x => x.name == book.name).FirstOrDefaultAsync();
-                if (exists != null)
-                {
-                    return new BaseResponse
-                    {
-                        ErrorCode = Roles.Existed_Book_Name,
-                        Message = "Book's name has already existed. Please enter different book's name!",
-                    };
-                }
-                // check policy
-                else if (exists.stock > policy.MaxBookStock)
-                {
-                    return new BaseResponse
-                    {
-                        ErrorCode = Roles.OverflowMaxStock,
-                        Message = "Maximum stock: " + policy.MaxBookStock + ". You cannot input!"
-                    };
-                } else if (book.stock <= policy.MinBookStock)
-                {
-                    return new BaseResponse
-                    {
-                        ErrorCode = Roles.NotEnoughMinStock,
-                        Message = "Please input minimum " + policy.MinBookStock + " books!"
-                    };
-                }
-                //update some fields:
-                book.stock += exists.stock;
-                book.state = true;
-                book.url = "";
-                book.isRemove = false;
-                // add object to database
-                _context.BOOKS.Add(book);
-                await _context.SaveChangesAsync();
-                // change imageName, url
-                var file = book.file;
-                if (file != null)
-                {
-                    string domainUrl = Request.Scheme + "://" + Request.Host.ToString();
-                    string fileName = book.id + "_" + book.imageName;
-                    string path = _ihostingEnvironment.WebRootPath + "\\Books\\" + fileName;
-                    using (var stream = new FileStream(path, FileMode.Create))
-                    {
-                        file.CopyTo(stream);
+            Regex regex = new Regex("\\p{IsCombiningDiacriticalMarks}+");
+            string temp = s.Normalize(NormalizationForm.FormD);
+            return regex.Replace(temp, String.Empty).Replace('\u0111', 'd').Replace('\u0110', 'D');
+        }
 
-                        book.imageName = fileName;
-                        book.url = domainUrl + "/Books/" + fileName;  //http://localhost:59209/books/back-end-ex-1.png
+        [HttpGet("search")]
+        public async Task<ActionResult<BaseResponse>> Search([FromQuery] string q)
+        {
+            string name = convertToUnicode(q.Split("_")[0]);
+            string kind = convertToUnicode(q.Split("_")[1]);
 
-                        _context.Entry(book).Property(x => x.imageName).IsModified = true;
-                        _context.SaveChanges();
-                    }
-                }
+            if (name != "" && kind != "")
+            {
                 return new BaseResponse
                 {
                     ErrorCode = Roles.Success,
-                    Message = "Book created successfully!",
-                    Data = book
+                    Data = await _context.BOOKS
+                    .Where(b => 
+                    convertToUnicode(b.name) == name && 
+                    convertToUnicode(b.kind) == kind).ToListAsync()
                 };
             }
+            else if (name != "") {
+                return new BaseResponse
+                {
+                    ErrorCode = Roles.Success,
+                    Data = await _context.BOOKS
+                    .Where(b => convertToUnicode(b.name) == name).ToListAsync()
+                };
+            }
+            else if (kind != "")
+            {
+                return new BaseResponse
+                {
+                    ErrorCode = Roles.Empty,
+                    Data = await _context
+                    .BOOKS.Where(b => convertToUnicode(b.kind) == kind).ToListAsync()
+                };
+            }
+            return new BaseResponse
+            {
+                ErrorCode = Roles.NotFound
+            };
         }
-        [HttpPut]
-        public async Task<ActionResult<BaseResponse>> Put([FromForm] BOOK book)
+
+        [HttpGet("bookRemoved")]
+        public async Task<ActionResult<BaseResponse>> GetBookRemoved()
+        {
+            return new BaseResponse
+            {
+                ErrorCode = Roles.Success,
+                Data = await _context.BOOKS.Where(x => x.isRemove == true).ToListAsync()
+            };
+        }
+        
+        public void Post(BOOK book)
+        {
+            book.state = true;
+            book.url = "";
+            book.isRemove = false;
+
+            _context.BOOKS.Add(book);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<BaseResponse>> Put([FromForm] BOOK book, int id)
         {
             if (string.IsNullOrEmpty(book.name))
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Empty_Book_Name,
-                    Message = "Empty book name!"
+                    ErrorCode = Roles.Empty_Book_Name
                 };
             } else if (string.IsNullOrEmpty(book.author))
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Empty_Book_Author,
-                    Message = "Empty book author!"
+                    ErrorCode = Roles.Empty_Book_Author
                 };
             } else if (string.IsNullOrEmpty(book.kind))
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Empty_Book_Kind,
-                    Message = "Empty book kind!"
+                    ErrorCode = Roles.Empty_Book_Kind
                 };
             } else if (book.price == 0)
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Empty_Book_Price,
-                    Message = "Empty book price!"
+                    ErrorCode = Roles.Empty_Book_Price
                 };
             } else if (book.stock == 0)
             {
@@ -200,27 +166,41 @@ namespace QLNhaSach.Controllers
                 };
             } else {
                 // check exists
-                var exists = await _context.BOOKS
-                    .Where(x => x.name == book.name && x.id != book.id)
-                    .FirstOrDefaultAsync();
+                var exists = await _context.BOOKS.Where(b => b.name == book.name && b.id != id).FirstOrDefaultAsync();
                 if (exists != null)
                 {
                     return new BaseResponse
                     {
-                        ErrorCode = Roles.Existed_Book_Name,
-                        Message = "Book's name has already existed. Please enter different book's name!",
-                        Data = null
+                        ErrorCode = Roles.Existed_Book
                     };
                 }
-                else {
-                    var valid = await _context.BOOKS.FindAsync(book.id);
+                else
+                {
+                    // check policy
+                    var policy = new Roles();
+                    if (book.stock > policy.MaxBookStock)
+                    {
+                        return new BaseResponse
+                        {
+                            ErrorCode = Roles.OverflowMaxStock,
+                            Message = policy.MaxBookStock + ""
+                        };
+                    }
+                    else if (book.stock < policy.MinBookInput)
+                    {
+                        return new BaseResponse
+                        {
+                            ErrorCode = Roles.NotEnoughMinStock,
+                            Message = policy.MinBookInput + ""
+                        };
+                    }
 
+                    var valid = await _context.BOOKS.FindAsync(id);
                     valid.name = book.name;
                     valid.price = book.price;
                     valid.kind = book.kind;
                     valid.author = book.author;
-                    //valid.stock += book.stock;
-                    // add object to database
+                    valid.stock = book.stock;
                     _context.BOOKS.Update(valid);
                     await _context.SaveChangesAsync();
                     // change imageName, url
@@ -236,7 +216,7 @@ namespace QLNhaSach.Controllers
 
                         // add new path
                         string domainUrl = Request.Scheme + "://" + Request.Host.ToString();
-                        string fileName = book.id + "_" + book.imageName;
+                        string fileName = book.id + "_" + file.FileName;
                         path = _ihostingEnvironment.WebRootPath + "\\Books\\" + fileName;
                         using (var stream = new FileStream(path, FileMode.Create))
                         {
@@ -246,6 +226,7 @@ namespace QLNhaSach.Controllers
                             book.url = domainUrl + "/Books/" + fileName;
 
                             _context.Entry(book).Property(x => x.imageName).IsModified = true;
+                            _context.Entry(book).Property(x => x.url).IsModified = true;
                             _context.SaveChanges();
                         }
                     }
@@ -256,13 +237,22 @@ namespace QLNhaSach.Controllers
                     };
                 }
             }
+        }
+
+        [HttpPut("restore/{id}")]
+        public async Task<ActionResult<BaseResponse>> PutRestore(int id)
+        {
+            var valid = await _context.BOOKS.Where(b => b.id == id).FirstOrDefaultAsync();
+            valid.isRemove = false;
+
+            _context.BOOKS.Update(valid);
+            await _context.SaveChangesAsync();
             return new BaseResponse
             {
-                ErrorCode = Roles.EmptyUsernamePassword,
-                Message = "Username of Password is empty!",
-                Data = null
+                ErrorCode = Roles.Success
             };
         }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult<BaseResponse>> Delete(int id)
         {

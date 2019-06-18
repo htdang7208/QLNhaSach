@@ -29,10 +29,10 @@ namespace QLNhaSach.Controllers
             for(int i = 0; i < books.Count; i++)
             {
                 var totalAmount = 0;
-                var inputDetails = await _context.INPUTDETAILS.Where(x => x.bookId == books[i].id).ToListAsync();
-                for (int j = 0; j < inputDetails.Count; j++)
+                var input = await _context.INPUTS.Where(x => x.bookId == books[i].id).ToListAsync();
+                for (int j = 0; j < input.Count; j++)
                 {
-                    totalAmount += inputDetails[j].amount;
+                    totalAmount += input[j].amount;
                 }
                 report.name = books[i].name;
                 report.nowStock = books[i].stock;

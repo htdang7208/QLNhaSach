@@ -141,7 +141,7 @@ namespace QLNhaSach.Controllers
                 {
                     return new BaseResponse
                     {
-                        ErrorCode = Roles.Empty_Book_Input,
+                        //ErrorCode = Roles.Empty_Book_Input,
                         Message = "Some field is empty!",
                         Data = null
                     };
@@ -182,7 +182,7 @@ namespace QLNhaSach.Controllers
                 {
                     return new BaseResponse
                     {
-                        ErrorCode = Roles.Empty_Book_Input,
+                        //ErrorCode = Roles.Empty_Book_Input,
                         Message = "Some field is empty!",
                         Data = null
                     };

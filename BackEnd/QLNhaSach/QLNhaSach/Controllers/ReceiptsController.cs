@@ -28,10 +28,7 @@ namespace QLNhaSach.Controllers
         [HttpGet]
         public async Task<ActionResult<BaseResponse>> Get()
         {
-            return new BaseResponse
-            {
-                ErrorCode = Roles.Success,
-                Data = await _context.RECEIPTS.Where(x => x.isRemove == false)
+            var re = await _context.RECEIPTS.Where(x => x.isRemove == false)
                 .Include(c => c.CUSTOMER)
                 .Where(x => x.customerId == x.CUSTOMER.id)
                 .Select(r => new CustomerReceiptInfo
@@ -46,7 +43,11 @@ namespace QLNhaSach.Controllers
                     dateCreated = r.dateCreated,
                     customerPaid = r.customerPaid,
                     total = r.total
-                }).ToListAsync()
+                }).ToListAsync();
+            return new BaseResponse
+            {
+                ErrorCode = Roles.Success,
+                Data = re
             };
         }
         [HttpGet("{id}")]
@@ -69,7 +70,7 @@ namespace QLNhaSach.Controllers
                     dateCreated = re.dateCreated,
                     customerPaid = re.customerPaid,
                     total = re.total
-                }).ToListAsync()
+                }).FirstOrDefaultAsync()
             };
         }
         [HttpPost]
@@ -160,15 +161,21 @@ namespace QLNhaSach.Controllers
                 };
             }
         }
-        [HttpPut]
-        public async Task<ActionResult<BaseResponse>> Put([FromForm] CustomerReceiptInfo data)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<BaseResponse>> Put([FromForm] CustomerReceiptInfo data, int id)
         {
-            if(data.total == 0 || data.customerPaid == 0)
+            if(data.total == 0)
             {
                 return new BaseResponse
                 {
-                    ErrorCode = Roles.Empty_Book_Input,
-                    Message = "Some field is empty!"
+                    ErrorCode = Roles.Empty_Customer_Total
+                };
+            }
+            if (data.customerPaid == 0)
+            {
+                return new BaseResponse
+                {
+                    ErrorCode = Roles.Empty_Customer_Paid
                 };
             }
             var receipt = await _context.RECEIPTS.Where(re => re.id == data.id).FirstOrDefaultAsync();
@@ -244,5 +251,46 @@ namespace QLNhaSach.Controllers
                 Message = "Not found!"
             };
         }
+
+        [HttpGet("receiptRemoved")]
+        public async Task<ActionResult<BaseResponse>> GetCustomerRemoved()
+        {
+            var re = await _context.RECEIPTS.Where(x => x.isRemove == true)
+                .Include(c => c.CUSTOMER)
+                .Where(x => x.customerId == x.CUSTOMER.id)
+                .Select(r => new CustomerReceiptInfo
+                {
+                    id = r.id,
+                    customerId = r.customerId,
+                    firstName = r.CUSTOMER.firstName,
+                    lastName = r.CUSTOMER.lastName,
+                    phone = r.CUSTOMER.phone,
+                    email = r.CUSTOMER.email,
+                    address = r.CUSTOMER.address,
+                    dateCreated = r.dateCreated,
+                    customerPaid = r.customerPaid,
+                    total = r.total
+                }).ToListAsync();
+            return new BaseResponse
+            {
+                ErrorCode = Roles.Success,
+                Data = re
+            };
+        }
+
+        [HttpPut("restore/{id}")]
+        public async Task<ActionResult<BaseResponse>> PutRestore(int id)
+        {
+            var valid = await _context.RECEIPTS.Where(cus => cus.id == id).FirstOrDefaultAsync();
+            valid.isRemove = false;
+
+            _context.RECEIPTS.Update(valid);
+            await _context.SaveChangesAsync();
+            return new BaseResponse
+            {
+                ErrorCode = Roles.Success
+            };
+        }
+
     }
 }

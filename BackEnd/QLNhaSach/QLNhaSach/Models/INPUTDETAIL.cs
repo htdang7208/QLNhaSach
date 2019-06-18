@@ -15,7 +15,7 @@ namespace QLNhaSach.Models
         public int bookId { get; set; }
         public int inputId { get; set; }
         public int amount { get; set; }
-
+        
         [ForeignKey("bookId")]
         public BOOK BOOK { get; set; }
 

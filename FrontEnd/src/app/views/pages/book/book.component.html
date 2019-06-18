@@ -1,3 +1,214 @@
-<p>
-  book works!
-</p>
+<div class="card">
+  <div class="card-header">
+    <h2 class="text-success">TRA CỨU SÁCH</h2>
+  </div>
+</div>
+<div class="row mt-3">
+  <!-- SEARCH -->
+  <div class="col-md-8">
+    <div class="d-flex">
+      <div class="w-75 d-flex">
+        <p class="w-50 pr-1 form-group">
+          <label for="idSearchName">Tên sách</label>
+          <select id="idSearchName" [(ngModel)]="selectedName" class="form-control">
+            <option value="" disabled>---Please select---</option>
+            <!-- <option value="undefined">(none)</option> dòng này làm phát sinh lỗi selectedNameId không nhận được giá trị-->
+            <option value="" selected>(none)</option>
+            <option *ngFor="let book of list" [value]="book.name">{{book.name}}</option>
+            <!-- <option *ngFor="let book of list" [ngValue]="book.id">{{book.name}}</option> -->
+          </select>
+        </p>
+        <p class="w-50 pl-1 form-group">
+          <label for="singleSelect">Thể loại sách</label>
+          <select id="singleSelect" [(ngModel)]="selectedKind" class="form-control">
+            <option value="" disabled>---Please select---</option>
+            <option value="" selected>(none)</option>
+            <option *ngFor="let book of list" [value]="book.kind">{{book.kind}}</option>
+          </select>
+        </p>
+      </div>
+      <div class="w-25 align-self-end pl-2 pb-3">
+        <button type="button" class="btn btn-outline-primary" (click)="search($event)"><i class="fas fa-search"></i>Tìm
+          kiếm</button>
+      </div>
+    </div>
+  </div>
+  <!-- BOOK REMOVED -->
+  <div class="col-md-4">
+    <h3 class="bg-success text-white rounded py-2 pl-2">BOOK REMOVED</h3>
+    <div *ngFor="let row of listRemoved" class="row ml-0 border-left overflow-auto">
+      <div class="col-md-2 pl-1 pb-1"><img [src]="row.url" alt="cus" class="w-100 img-thumbnail"></div>
+      <div class="col-md-8 pb-1 text-left text-wrap">{{row.name}}</div>
+      <div class="col-md-2 pb-1 text-right">
+        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal-restore"
+          (click)="showModalRestore(row.id)"><i class="fa fa-trash-restore"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Search Modal -->
+<div id="modal-search" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+          KẾT QUẢ TÌM KIẾM
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- ... -->
+        <div class="row">
+          <div class="col-1 middle custome-header">Stt</div>
+          <div class="col-3 middle custome-header">Tên</div>
+          <div class="col-2 middle custome-header">Thể loại</div>
+          <div class="col-2 middle custome-header">Tác giả</div>
+          <div class="col-1 middle custome-header">Kho</div>
+          <div class="col-2 middle custome-header">Ảnh</div>
+          <div class="col-1 middle custome-header"></div>
+        </div>
+        <div *ngFor="let book of listSearch; let i = index;" class="row h-100">
+          <div class="col-1 middle">{{i + 1}}</div>
+          <div class="col-3 middle">{{book.name}}</div>
+          <div class="col-2 middle">{{book.kind}}</div>
+          <div class="col-2 middle">{{book.author}}</div>
+          <div class="col-1 middle">{{book.stock}}</div>
+          <div class="col-2"><img [src]="book.url" alt="book" class="img-fluid"></div>
+          <div class="col-1 middle">
+            <button type="button" class="btn btn-danger btn-sm mr-1" data-toggle="modal" data-target="#modal-remove"
+              (click)="showModalRemove(book.id)"><i class="fa fa-trash-alt"></i></button>
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-edit"
+              (click)="showModalEdit(book.id)"><i class="fa fa-edit"></i></button>
+          </div>
+        </div>
+
+        <!-- ... -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="modal-edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+          KẾT QUẢ TÌM KIẾM
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pr-0">
+        <!-- ... -->
+
+        <div class="container-fluid">
+          <form [formGroup]="form" (ngSubmit)="submitFormEditModal()" class="row" id="myForm" novalidate>
+            <div class="col-sm col-md-8">
+              <p class="form-group row">
+                <label class="col-sm col-md-4 text-right" for="name">Tên</label>
+                <input [(ngModel)]="book.name" type="text" id="name" class="col-sm col-md-8 form-control"
+                  formControlName="name" required />
+              </p>
+              <p class="form-group row">
+                <label class="col-sm col-md-4 text-right" for="kind">Thể loại</label>
+                <input [(ngModel)]="book.kind" type="text" id="kind" class="col-sm col-md-8 form-control"
+                  formControlName="kind" required />
+              </p>
+              <p class="form-group row">
+                <label class="col-sm col-md-4 text-right" for="author">Tác giả</label>
+                <input [(ngModel)]="book.author" type="text" id="author" class="col-sm col-md-8 form-control"
+                  formControlName="author" required />
+              </p>
+              <p class="form-group row">
+                <label class="col-sm col-md-4 text-right" for="price">Giá sách</label>
+                <input [(ngModel)]="book.price" type="number" id="price" class="col-sm col-md-8 form-control"
+                  formControlName="price" required />
+              </p>
+              <p class="form-group row">
+                <label class="col-sm col-md-4 text-right" for="stock">Số lượng</label>
+                <input [(ngModel)]="book.stock" type="text" id="stock" class="col-sm col-md-8 form-control"
+                  formControlName="stock" required />
+              </p>
+            </div>
+            <div class="col-sm col-md-4">
+              <div class="row">
+                <p class="mb-0 col" id="imageFrame">
+                  <img [src]="book.url" alt="avatar" id="img-1" class="w-100 rounded img-fluid img-thumbnail" />
+                </p>
+              </div>
+              <div class="row">
+                <div class="col input-group">
+                  <div class="custom-file">
+                    <input type="file" #uploader class="custom-file-input" id="file-input"
+                      (change)="onFileSelect($event.target.files)">
+                    <label class="custom-file-label" for="file-input">{{fileChosen}}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- ... -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+          (click)="closeEditModal(book.id)">Close</button>
+        <button type="submit" form="myForm" class="btn btn-primary" data-toggle="modal" data-target="#modal-inform">
+          Update
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Inform Modal -->
+<div id="modal-inform" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p><i class="fas fa-info fa-3x text-primary mx-4"></i> {{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Remove Modal -->
+<div id="modal-remove" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p><i class="fas fa-question fa-3x text-danger mx-4"></i> {{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" (click)="removeBook(book.id)">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Restore Modal -->
+<div id="modal-restore" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content border border-primary">
+      <div class="modal-body">
+        <p><i class="fas fa-question fa-3x text-danger mx-4"></i> {{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="restoreBook(book.id)">OK</button>
+      </div>
+    </div>
+  </div>
+</div>

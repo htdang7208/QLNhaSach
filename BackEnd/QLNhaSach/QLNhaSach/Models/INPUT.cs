@@ -12,8 +12,12 @@ namespace QLNhaSach.Models
     {
         [Key]
         public int id { get; set; }
+        public int stt { get; set; }
+        public int bookId { get; set; }
+        public int amount { get; set; }
         public bool isRemove { get; set; }
 
-        public ICollection<INPUTDETAIL> INPUTDETAILS { get; set; }
+        [ForeignKey("bookId")]
+        public BOOK BOOK { get; set; }
     }
 }

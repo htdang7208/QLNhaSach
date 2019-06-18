@@ -1,0 +1,15 @@
+.middle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.custome-header {
+    text-decoration: underline;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-left: 1px solid green;
+    margin-bottom: 5px;
+}
+.custome-header:first-child {
+    border-left: 0;
+}

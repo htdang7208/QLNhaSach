@@ -1,0 +1,184 @@
+<div class="row">
+  <div class="col-md">
+    <h2 class="text-success">PHIẾU NHẬP HÀNG</h2>
+  </div>
+  <div class="col-md text-right">
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-edit"
+      (click)="showModalEdit($event)"><i class="fas fa-plus-square"></i> THÊM PHIẾU</button>
+  </div>
+</div>
+<table class="table table-striped table-bordered" style="width:100%">
+  <thead>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th class="text-center">Phiếu nhập số (ID)</th>
+      <th class="text-center">Mã sách</th>
+      <th class="text-center">Số lượng sách</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let live of list; let i = index">
+      <td class="text-center">{{i + 1}}</td>
+      <td class="text-center">{{live.stt}}</td>
+      <td class="text-center">{{live.bookId}}</td>
+      <td class="text-center">{{live.amount}}</td>
+      <td class="text-center">
+        <button type="button" class="btn btn-danger btn-sm mr-1" data-toggle="modal" (click)="showModalRemove(live.stt)"
+          data-target="#modal-remove"><i class="fa fa-trash"></i></button>
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" (click)="showModalEdit(live.stt)"
+          data-target="#modal-edit"><i class="fa fa-edit"></i></button>
+      </td>
+    </tr>
+
+  </tbody>
+  <tfoot>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th class="text-center">Phiếu nhập số (ID)</th>
+      <th class="text-center">Mã sách</th>
+      <th class="text-center">Số lượng sách</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </tfoot>
+</table>
+
+<!-- Thông tin những info bị xóa -->
+<div class="row">
+  <div class="col-md">
+    <h2 class="text-success">PHIẾU ĐÃ XÓA</h2>
+  </div>
+</div>
+<table class="table table-striped table-bordered" style="width:100%">
+  <thead>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th class="text-center">Phiếu nhập số (ID)</th>
+      <th class="text-center">Mã sách</th>
+      <th class="text-center">Số lượng sách</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let die of listRemoved; let i = index">
+      <td class="text-center">{{i + 1}}</td>
+      <td class="text-center">{{die.stt}}</td>
+      <td class="text-center">{{die.bookId}}</td>
+      <td class="text-center">{{die.amount}}</td>
+      <td class="text-center">
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" (click)="showModalRestore(die.stt)"
+          data-target="#modal-restore"><i class="fa fa-trash-restore"></i></button>
+      </td>
+    </tr>
+
+  </tbody>
+  <tfoot>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th class="text-center">Phiếu nhập số (ID)</th>
+      <th class="text-center">Mã sách</th>
+      <th class="text-center">Số lượng sách</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </tfoot>
+</table>
+
+<!-- Edit Modal -->
+<div id="modal-edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+          {{ stt === undefined || stt === 0 ? 'THÊM PHIẾU' : 'CẬP NHẬT PHIẾU'}}
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pr-0">
+
+        <div class="row m-0">
+          <p class="col-sm col-md-1 form-group">Stt</p>
+          <p class="col-sm col-md-3 form-group">Tên sách</p>
+          <p class="col-sm col-md-2 form-group">Thể loại</p>
+          <p class="col-sm col-md-2 form-group">Tác giả</p>
+          <p class="col-sm col-md-2 form-group">Số lượng</p>
+          <p class="col-sm col-md-2 form-group">ID Phiếu</p>
+        </div>
+        <div *ngFor="let item of listStt; let i = index" class="row m-0">
+          <p class="col-sm col-md-1 form-group">
+            <input type="number" class="form-control" [value]="i + 1" disabled />
+          </p>
+          <p class="col-sm col-md-4 form-group">
+            <input [(ngModel)]="item.name" type="text" class="form-control" required />
+          </p>
+          <p class="col-sm col-md-2 form-group">
+            <input [(ngModel)]="item.kind" type="text" class="form-control" required />
+          </p>
+          <p class="col-sm col-md-2 form-group">
+            <input [(ngModel)]="item.author" type="text" class="form-control" required />
+          </p>
+          <p class="col-sm col-md-2 form-group">
+            <input [(ngModel)]="item.amount" type="number" class="form-control" required />
+          </p>
+          <p class="col-sm col-md-1 form-group">
+            <input [(ngModel)]="item.stt" type="number" class="form-control" disabled />
+          </p>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success rounded-circle" (click)="plus($event)"><i
+            class="fas fa-plus-square"></i></button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-inform"
+          (click)="update(item.stt)">
+          {{ stt === undefined || stt === 0 ? 'Save' : 'Update'}}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inform Modal -->
+<div id="modal-inform" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p><i class="fas fa-info fa-3x text-primary mx-4"></i> {{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Remove Modal -->
+<div id="modal-remove" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p><i class="fas fa-question fa-3x text-danger mx-4"></i> {{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" (click)="remove(obLive.stt)">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Restore Modal -->
+<div id="modal-restore" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content border border-primary">
+      <div class="modal-body">
+        <p><i class="fas fa-question fa-3x text-danger mx-4"></i> {{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="restore(obDie.stt)">OK</button>
+      </div>
+    </div>
+  </div>
+</div>

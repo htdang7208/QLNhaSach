@@ -1,0 +1,226 @@
+<div class="row">
+  <div class="col-md">
+    <h2 class="text-success">PHIẾU THU TIỀN</h2>
+  </div>
+  <div class="col-md text-right">
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-edit"
+      (click)="showModalEditreceipt($event)"><i class="fas fa-plus-square"></i> TẠO PHIẾU</button>
+  </div>
+</div>
+<table id="receipt-table" class="table table-striped table-bordered" style="width:100%">
+  <thead>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th class="text-truncate">Tên</th>
+      <th class="text-truncate">SĐT</th>
+      <th class="text-truncate">Ngày tạo</th>
+      <th class="text-truncate">Tiền trả</th>
+      <th class="text-truncate">Thanh toán</th>
+      <th class="text-truncate">Nợ</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let row of list; let i = index">
+      <td class="text-center">{{i + 1}}</td>
+      <td>{{row.lastName}} {{row.firstName}}</td>
+      <td>{{row.phone}}</td>
+      <td>{{row.dateCreated}}</td>
+      <td>{{row.customerPaid}}</td>
+      <td>{{row.total}}</td>
+      <td>{{row.dept}}</td>
+      <td class="text-center">
+        <button type="button" class="btn btn-danger btn-sm mr-1" data-toggle="modal"
+          (click)="showModalRemovereceipt(row.id)" data-target="#modal-remove"><i class="fa fa-trash"></i></button>
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+          (click)="showModalEditreceipt($event, row.id)" data-target="#modal-edit"><i class="fa fa-edit"></i></button>
+      </td>
+    </tr>
+
+  </tbody>
+  <tfoot>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th class="text-truncate">Tên</th>
+      <th class="text-truncate">SĐT</th>
+      <th class="text-truncate">Ngày tạo</th>
+      <th class="text-truncate">Tiền trả</th>
+      <th class="text-truncate">Thanh toán</th>
+      <th class="text-truncate">Nợ</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </tfoot>
+</table>
+
+<!-- Thông tin những receipt bị xóa -->
+<div class="row">
+  <div class="col-md">
+    <h2 class="text-success">PHIẾU THU ĐÃ XÓA</h2>
+  </div>
+</div>
+<table id="receipt-table" class="table table-striped table-bordered" style="width:100%">
+  <thead>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th class="text-truncate">Tên</th>
+      <th class="text-truncate">SĐT</th>
+      <th class="text-truncate">Ngày tạo</th>
+      <th class="text-truncate">Tiền trả</th>
+      <th class="text-truncate">Thanh toán</th>
+      <th class="text-truncate">Nợ</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let row of listRemoved; let i = index">
+      <td class="text-center">{{i + 1}}</td>
+      <td>{{row.lastName}} {{row.firstName}}</td>
+      <td>{{row.phone}}</td>
+      <td>{{row.dateCreated}}</td>
+      <td>{{row.customerPaid}}</td>
+      <td>{{row.total}}</td>
+      <td>{{row.dept}}</td>
+      <td class="text-center">
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+          (click)="showModalRestorereceipt(row.id)" data-target="#modal-restore"><i
+            class="fa fa-trash-restore"></i></button>
+      </td>
+    </tr>
+
+  </tbody>
+  <tfoot>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th class="text-truncate">Tên</th>
+      <th class="text-truncate">SĐT</th>
+      <th class="text-truncate">Ngày tạo</th>
+      <th class="text-truncate">Tiền trả</th>
+      <th class="text-truncate">Thanh toán</th>
+      <th class="text-truncate">Nợ</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </tfoot>
+</table>
+
+<!-- Edit Modal -->
+<div id="modal-edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+          {{ receipt.id === undefined || receipt.id === 0 ? 'TẠO PHIẾU' : 'CẬP NHẬT PHIẾU'}}
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pr-0">
+        <!-- ... -->
+
+        <div class="container-fluid">
+          <form [formGroup]="form" (ngSubmit)="submitFormEditModal()" class="row" id="myForm" novalidate>
+            <div class="col-sm col-md-8">
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">FirstName</span>
+                <input [(ngModel)]="receipt.firstName" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="firstName" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">LastName</span>
+                <input [(ngModel)]="receipt.lastName" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="lastName" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Phone</span>
+                <input [(ngModel)]="receipt.phone" type="number" class="col-sm col-md-8 form-control"
+                  formControlName="phone" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Email</span>
+                <input [(ngModel)]="receipt.email" type="email" class="col-sm col-md-8 form-control"
+                  formControlName="email" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Address</span>
+                <input [(ngModel)]="receipt.address" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="address" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">DateCreated</span>
+                <input [(ngModel)]="receipt.dateCreated" type="date" class="col-sm col-md-8 form-control"
+                  formControlName="dateCreated" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">CustomerPaid</span>
+                <input [(ngModel)]="receipt.customerPaid" type="number" class="col-sm col-md-8 form-control"
+                  formControlName="customerPaid" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Total</span>
+                <input [(ngModel)]="receipt.total" type="number" class="col-sm col-md-8 form-control"
+                  formControlName="total" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Dept</span>
+                <input [(ngModel)]="receipt.dept" type="number" class="col-sm col-md-8 form-control disabled"
+                  formControlName="dept" required />
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <!-- ... -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+          (click)="closeEditModal($event)">Close</button>
+        <button type="submit" form="myForm" class="btn btn-primary" data-toggle="modal" data-target="#modal-inform">
+          {{ receipt.id === undefined || receipt.id === 0 ? 'Save' : 'Update'}}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Inform Modal -->
+<div id="modal-inform" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p><i class="fas fa-info fa-3x text-primary mx-4"></i> {{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Remove Modal -->
+<div id="modal-remove" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p><i class="fas fa-question fa-3x text-danger mx-4"></i> {{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" (click)="removereceipt(receipt.id)">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Restore Modal -->
+<div id="modal-restore" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content border border-primary">
+      <div class="modal-body">
+        <p><i class="fas fa-question fa-3x text-danger mx-4"></i> {{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal"
+          (click)="restorereceipt(receipt.id)">OK</button>
+      </div>
+    </div>
+  </div>
+</div>

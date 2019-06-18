@@ -27,6 +27,6 @@ namespace QLNhaSach.Models
         public IFormFile file { get; set; }
 
 
-        public ICollection<INPUTDETAIL> INPUTDETAILS { get; set; }
+        public ICollection<INPUT> INPUTS { get; set; }
     }
 }

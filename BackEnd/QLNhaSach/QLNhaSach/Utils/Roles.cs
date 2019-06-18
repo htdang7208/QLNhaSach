@@ -3,21 +3,11 @@
     public class Roles
     {
         private int _MaxBookStock;
-        public int MaxBookStock {
-            get => _MaxBookStock = 300;
-            set => _MaxBookStock = value;
-        }
-        private int _MinBookStock;
-        public int MinBookStock {
-            get => _MinBookStock = 150;
-            set => _MinBookStock = value;
-        }
+        public int MaxBookStock { get; set; }
+        private int _MinBookInput;
+        public int MinBookInput { get; set; }
         private bool _GetOverDept;
-        public bool GetOverDept
-        {
-            get => _GetOverDept = false;
-            set => _GetOverDept = value;
-        }
+        public bool GetOverDept { get; set; }
 
         public static int NotFound = 404;
         public static int Success = 200;
@@ -43,8 +33,7 @@
         public static int Empty_Book_Kind = 13;
         public static int Empty_Book_Author = 14;
         public static int Empty_Book_Stock = 15;
-        public static int Existed_Book_Name = 16;
-        public static int Empty_Book_Input = 17;
+        public static int Existed_Book = 16;
         public static int Book_Removed = 18;
 
         public static int Empty_Receipt = 19;
@@ -53,11 +42,15 @@
         public static int Empty_Customer_Input = 21;
         public static int Empty_Customer_FirstName = 22;
         public static int Empty_Customer_LastName = 23;
+        public static int Empty_Customer_Total = 24;
+        public static int Empty_Customer_Paid = 25;
 
 
         public Roles()
         {
-            //_Max_Book_Stock = 300;
+            this.MaxBookStock = 300;
+            this.MinBookInput = 150;
+            this.GetOverDept = true;
         }
     }
 }

@@ -219,5 +219,5 @@ begin
 	)
 end
 go
-alter table InputDetail add constraint FK_InputDetail_Input foreign key(inputId) references Input(id)
-alter table InputDetail add constraint FK_InputDetail_Book foreign key(bookId) references Book(id)
+--alter table Input add constraint FK_Input_Input foreign key(inputId) references Input(id)
+alter table Input add constraint FK_Input_Book foreign key(bookId) references Book(id)
