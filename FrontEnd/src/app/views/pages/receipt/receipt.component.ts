@@ -54,6 +54,8 @@ export class ReceiptComponent implements OnInit {
 
     if (this.receipt.id !== undefined && this.receipt.id !== 0) {
       fd.append("id", this.receipt.id.toString());
+      fd.append("customerId", this.receipt.customerId.toString());
+      console.log(this.receipt.customerId);
     }
 
     fd.append("firstName", formModel.firstName);
@@ -73,7 +75,8 @@ export class ReceiptComponent implements OnInit {
       event.preventDefault();
     }
     if (id > 0) {
-      this.service.get(id).subscribe(response => { this.receipt = response.data; });
+      this.service.get(id).subscribe(response => { this.receipt = response.data; console.log("receipt-get", this.receipt); });
+      
     }
     else {
       this.receipt = {} as CustomerReceiptInfo;
@@ -91,6 +94,7 @@ export class ReceiptComponent implements OnInit {
     this.setUser();
 
     if (this.receipt.id === undefined || this.receipt.id === 0) {
+      console.log("this.receipt", this.receipt);
       this.service.add(this.prepareSave()).subscribe(
         response => {
           switch (response.errorCode) {
@@ -106,7 +110,7 @@ export class ReceiptComponent implements OnInit {
     } else {
       this.service.update(this.prepareSave(), this.receipt.id).subscribe(
         response => {
-          console.log(this.receipt);
+          // console.log(this.receipt);
           switch (response.errorCode) {
             case 200: this.message = "Lưu thành công!"; break;
             case 23: this.message = "Số điện thoại này đã tồn tại!"; break;
@@ -125,7 +129,7 @@ export class ReceiptComponent implements OnInit {
      });
   }
   loadDataRemoved() {
-    this.service.getAllRemoved().subscribe(response => { this.listRemoved = response.data; console.log("aa:", this.listRemoved); });
+    this.service.getAllRemoved().subscribe(response => { this.listRemoved = response.data; });
   }
   restorereceipt(id: number) {
     this.service.restorereceipt(id).subscribe(response => {

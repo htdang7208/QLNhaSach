@@ -10,6 +10,7 @@ export interface Admin {
   name: string,
   username: string,
   password: string,
+  confirmPassword: string,
   imageName: string,
   url: string
 }

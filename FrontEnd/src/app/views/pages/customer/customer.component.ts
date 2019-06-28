@@ -38,6 +38,7 @@ export class CustomerComponent implements OnInit {
       address: [''],
       username: [''],
       password: [''],
+      confirmPassword: [''],
       oldDept: 0,
       nowDept: 0,
 
@@ -54,6 +55,7 @@ export class CustomerComponent implements OnInit {
     this.customer.password = this.form.get('password').value;
     if (this.customer.id === undefined && this.customer.id === 0) {
       this.customer.password = this.form.get('password').value;
+      this.customer.confirmPassword = this.form.get('confirmPassword').value;
     }
     this.customer.oldDept = this.form.get('oldDept').value;
     this.customer.nowDept = this.form.get('nowDept').value;
@@ -68,6 +70,7 @@ export class CustomerComponent implements OnInit {
       fd.append("id", this.customer.id.toString());
     } else {
       fd.append("password", formModel.password);
+      fd.append("confirmPassword", formModel.confirmPassword);
     }
 
     fd.append("firstName", formModel.firstName);
@@ -86,17 +89,17 @@ export class CustomerComponent implements OnInit {
 
     return fd;
   }
-  onFileSelect(files: FileList) {
+  onFileSelectCreate(files: FileList) {
     if (files && files[0].size > 0) {
       this.form.get('file').patchValue(files[0]);
       this.fileChosen = files[0].name;
     }
-    if (document.getElementById('img-1') != null) {
-      this.imageTemplate = document.getElementById('img-1');
-      document.getElementById('img-1').hidden;
+    if (document.getElementById('img-create-1') != null) {
+      this.imageTemplate = document.getElementById('img-create-1');
+      document.getElementById('img-create-1').hidden;
     }
-    if (document.getElementById('img-2') != null) {
-      document.getElementById('img-2').parentElement.hidden;
+    if (document.getElementById('img-create-2') != null) {
+      document.getElementById('img-create-2').parentElement.hidden;
     }
 
     // Đọc lấy đường dẫn file đã chọn (base64String), tạo fragment rồi hiển thị lên
@@ -111,12 +114,48 @@ export class CustomerComponent implements OnInit {
         return function (e) {
           var span = document.createElement('span');
           span.innerHTML = [
-            '<img id="img-2" class="w-100 rounded img-fluid img-thumbnail" ',
+            '<img id="img-create-2" class="w-100 rounded img-fluid img-thumbnail" ',
             'src="', e.target.result, '" ',
             'title="', escape(theFile.name), '"/>'
           ].join('');
-          document.getElementById('imageFrame').innerHTML = "";
-          document.getElementById('imageFrame').insertBefore(span, null);
+          document.getElementById('imageCreateFrame').innerHTML = "";
+          document.getElementById('imageCreateFrame').insertBefore(span, null);
+        };
+      })(f);
+      reader.readAsDataURL(f);
+    }
+  }
+  onFileSelect(files: FileList) {
+    if (files && files[0].size > 0) {
+      this.form.get('file').patchValue(files[0]);
+      this.fileChosen = files[0].name;
+    }
+    if (document.getElementById('img-update-1') != null) {
+      this.imageTemplate = document.getElementById('img-update-1');
+      document.getElementById('img-update-1').hidden;
+    }
+    if (document.getElementById('img-update-2') != null) {
+      document.getElementById('img-update-2').parentElement.hidden;
+    }
+
+    // Đọc lấy đường dẫn file đã chọn (base64String), tạo fragment rồi hiển thị lên
+    // Vì trình duyệt ngăn việc lấy full path image
+
+    for (var i = 0, f; f = files[i]; i++) {
+      if (!f.type.match('image.*')) {
+        continue;
+      }
+      let reader = new FileReader();
+      reader.onload = (function (theFile) {
+        return function (e) {
+          var span = document.createElement('span');
+          span.innerHTML = [
+            '<img id="img-update-2" class="w-100 rounded img-fluid img-thumbnail" ',
+            'src="', e.target.result, '" ',
+            'title="', escape(theFile.name), '"/>'
+          ].join('');
+          document.getElementById('imageUpdateFrame').innerHTML = "";
+          document.getElementById('imageUpdateFrame').insertBefore(span, null);
         };
       })(f);
       reader.readAsDataURL(f);
@@ -149,6 +188,7 @@ export class CustomerComponent implements OnInit {
     this.setUser();
 
     if (this.customer.id === undefined || this.customer.id === 0) {
+      console.log("this.customer", this.customer);
       this.service.add(this.prepareSave()).subscribe(
         response => {
           switch (response.errorCode) {
@@ -157,6 +197,7 @@ export class CustomerComponent implements OnInit {
             case 601: this.message = "Username này đã tồn tại!"; break;
             case 602: this.message = "Số điện thoại này đã tồn tại!"; break;
             case 603: this.message = "Username Phone không được phép bỏ trống!"; break;
+            case 605: this.message = "Mật khẩu không khớp!"; break;
           }
           this.loadData();
         }
@@ -164,7 +205,7 @@ export class CustomerComponent implements OnInit {
     } else {
       this.service.update(this.prepareSave(), this.customer.id).subscribe(
         response => {
-          console.log(this.customer);
+          // console.log(this.customer);
           switch (response.errorCode) {
             case 200: this.message = "Lưu thành công!"; break;
             case 404: this.message = "Không tìm thấy!"; break;
@@ -177,12 +218,20 @@ export class CustomerComponent implements OnInit {
       );
     }
   }
-  closeEditModal($event: any = null) {
-    if (document.getElementById('img-2') != null) {
-      document.getElementById('img-2').parentElement.remove();
+  closeCreateModal($event: any = null) {
+    if (document.getElementById('img-create-2') != null) {
+      document.getElementById('img-create-2').parentElement.remove();
     }
     if (this.imageTemplate != null) {
-      document.getElementById('imageFrame').appendChild(this.imageTemplate);
+      document.getElementById('imageCreateFrame').appendChild(this.imageTemplate);
+    }
+  }
+  closeEditModal($event: any = null) {
+    if (document.getElementById('img-update-2') != null) {
+      document.getElementById('img-update-2').parentElement.remove();
+    }
+    if (this.imageTemplate != null) {
+      document.getElementById('imageUpdateFrame').appendChild(this.imageTemplate);
     }
   }
   loadData() {

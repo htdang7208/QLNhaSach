@@ -3,8 +3,8 @@
     <h2 class="text-success">Thông tin khách hàng</h2>
   </div>
   <div class="col-md text-right">
-    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-edit"
-      (click)="showModalEditCustomer($event)"><i class="fas fa-plus-square"></i>Thêm khách hàng</button>
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-create"
+      (click)="showModalEditCustomer($event)"><i class="fas fa-plus-square"></i> Thêm khách hàng</button>
   </div>
   <div class="col-md">
     <div class="input-group">
@@ -111,14 +111,117 @@
   </tfoot>
 </table>
 
-<!-- Edit Modal -->
+<!-- Create customer Modal -->
+<div id="modal-create" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+          Thêm khách hàng
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pr-0">
+        <!-- ... -->
+
+        <div class="container-fluid">
+          <form [formGroup]="form" (ngSubmit)="submitFormEditModal()" class="row" id="myCreateForm" novalidate>
+            <div class="col-sm col-md-8">
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">FirstName</span>
+                <input [(ngModel)]="customer.firstName" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="firstName" placeholder="Tên đầu" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">LastName</span>
+                <input [(ngModel)]="customer.lastName" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="lastName" placeholder="Tên cuối" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Phone</span>
+                <input [(ngModel)]="customer.phone" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="phone" placeholder="Điện thoại" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Email</span>
+                <input [(ngModel)]="customer.email" type="email" class="col-sm col-md-8 form-control"
+                  formControlName="email" placeholder="Email" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Address</span>
+                <input [(ngModel)]="customer.address" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="address" placeholder="Địa chỉ" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Old Dept</span>
+                <input [(ngModel)]="customer.oldDept" type="number" class="col-sm col-md-8 form-control"
+                  formControlName="oldDept" placeholder="Nợ cũ" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Now Dept</span>
+                <input [(ngModel)]="customer.nowDept" type="number" class="col-sm col-md-8 form-control"
+                  formControlName="nowDept" placeholder="Nợ mới" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Username</span>
+                <input [(ngModel)]="customer.username" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="username" placeholder="Tên tài khoản" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Password</span>
+                <input [(ngModel)]="customer.password" type="password" class="col-sm col-md-8 form-control"
+                  formControlName="password" placeholder="Mật khẩu" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Confirm Password</span>
+                <input [(ngModel)]="customer.confirmPassword" type="password" class="col-sm col-md-8 form-control"
+                  formControlName="confirmPassword" placeholder="Nhập lại mật khẩu" required />
+              </p>
+            </div>
+            <div class="col-sm col-md-4">
+              <div class="row">
+                <p class="mb-0 col" id="imageCreateFrame">
+                  <img [src]="customer.url" alt="avatar" id="img-create-1"
+                    class="w-100 rounded img-fluid img-thumbnail" />
+                </p>
+              </div>
+              <div class="row">
+                <div class="col input-group">
+                  <div class="custom-file">
+                    <input type="file" #uploader class="custom-file-input"
+                      (change)="onFileSelectCreate($event.target.files)">
+                    <label class="custom-file-label" for="file-input">{{fileChosen}}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- ... -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+          (click)="closeCreateModal($event)">Close</button>
+        <button type="submit" form="myCreateForm" class="btn btn-primary" data-toggle="modal"
+          data-target="#modal-inform">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Update customer Modal -->
 <div id="modal-edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">
-          {{ customer.id === undefined || customer.id === 0 ? 'Thêm khách hàng' : 'Chỉnh sửa thông tin khách hàng'}}
+          Chỉnh sửa thông tin khách hàng
         </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -142,7 +245,7 @@
               </p>
               <p class="form-group row">
                 <span class="col-sm col-md-4 text-right">Phone</span>
-                <input [(ngModel)]="customer.phone" type="number" class="col-sm col-md-8 form-control"
+                <input [(ngModel)]="customer.phone" type="text" class="col-sm col-md-8 form-control"
                   formControlName="phone" placeholder="Điện thoại" required />
               </p>
               <p class="form-group row">
@@ -185,15 +288,15 @@
             </div>
             <div class="col-sm col-md-4">
               <div class="row">
-                <p class="mb-0 col" id="imageFrame">
-                  <img [src]="customer.url" alt="avatar" id="img-1" class="w-100 rounded img-fluid img-thumbnail" />
+                <p class="mb-0 col" id="imageUpdateFrame">
+                  <img [src]="customer.url" alt="avatar" id="img-update-1"
+                    class="w-100 rounded img-fluid img-thumbnail" />
                 </p>
               </div>
               <div class="row">
                 <div class="col input-group">
                   <div class="custom-file">
-                    <input type="file" #uploader class="custom-file-input" id="file-input"
-                      (change)="onFileSelect($event.target.files)">
+                    <input type="file" #uploader class="custom-file-input" (change)="onFileSelect($event.target.files)">
                     <label class="custom-file-label" for="file-input">{{fileChosen}}</label>
                   </div>
                 </div>
@@ -208,7 +311,7 @@
         <button type="button" class="btn btn-secondary" data-dismiss="modal"
           (click)="closeEditModal($event)">Close</button>
         <button type="submit" form="myForm" class="btn btn-primary" data-toggle="modal" data-target="#modal-inform">
-          {{ customer.id === undefined || customer.id === 0 ? 'Save' : 'Update'}}
+          Update
         </button>
       </div>
     </div>

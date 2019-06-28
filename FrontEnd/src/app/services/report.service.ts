@@ -30,7 +30,7 @@ export interface Roles {
   minBookInput: number,
   getOverDept: boolean,
   deptOver: number,
-  stockMax: number
+  stockMin: number
 }
 @Injectable({
   providedIn: 'root'

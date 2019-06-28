@@ -17,8 +17,7 @@ export interface Customer {
   oldDept: number,
   nowDept: number,
   imageName: string,
-  url: string,
-  isRemove: boolean
+  url: string
 }
 export interface CustomerResponse {
   errorCode: number,

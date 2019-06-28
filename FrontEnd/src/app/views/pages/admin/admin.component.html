@@ -4,7 +4,7 @@
     <h2 class="text-success">Thông tin admin</h2>
   </div>
   <div class="col-md text-right">
-    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-edit"
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-create"
       (click)="showModalEditAdmin($event)"><i class=" fas fa-plus-square"></i> Thêm admin</button>
   </div>
   <div class="col-md">
@@ -40,8 +40,8 @@
       <td class="text-center">
         <button type="button" class="btn btn-danger btn-sm mr-1" data-toggle="modal"
           (click)="showModalRemoveAdmin(row.id)" data-target="#modal-remove"><i class="fa fa-trash"></i></button>
-        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" (click)="showModalEditAdmin($event, row.id)"
-          data-target="#modal-edit"><i class="fa fa-edit"></i></button>
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+          (click)="showModalEditAdmin($event, row.id)" data-target="#modal-edit"><i class="fa fa-edit"></i></button>
       </td>
     </tr>
 
@@ -66,52 +66,52 @@
   </div>
 </div>
 <table id="admin-table" class="table table-striped table-bordered" style="width:100%">
-    <thead>
-      <tr>
-        <th class="text-center">Stt</th>
-        <th>Tên</th>
-        <th>Email</th>
-        <th>Username</th>
-        <th>Password</th>
-        <th>Avatar</th>
-        <th class="text-center">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let row of listRemoved; let i = index">
-        <td class="text-center">{{i + 1}}</td>
-        <td>{{row.name}}</td>
-        <td>{{row.email}}</td>
-        <td>{{row.username}}</td>
-        <td>{{row.password}}</td>
-        <td><img [src]="row.url" alt="admin"></td>
-        <td class="text-center">
-          <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-            (click)="showModalRestoreAdmin(row.id)" data-target="#modal-restore"><i class="fas fa-trash-restore"></i></button>
-        </td>
-      </tr>
-  
-    </tbody>
-    <tfoot>
-      <tr>
-        <th class="text-center">Stt</th>
-        <th>Tên</th>
-        <th>Email</th>
-        <th>Username</th>
-        <th>Password</th>
-        <th>Avatar</th>
-        <th class="text-center">Action</th>
-      </tr>
-    </tfoot>
-  </table>
-<!-- Edit Modal -->
-<div id="modal-edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  <thead>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th>Tên</th>
+      <th>Email</th>
+      <th>Username</th>
+      <th>Password</th>
+      <th>Avatar</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let row of listRemoved; let i = index">
+      <td class="text-center">{{i + 1}}</td>
+      <td>{{row.name}}</td>
+      <td>{{row.email}}</td>
+      <td>{{row.username}}</td>
+      <td>{{row.password}}</td>
+      <td><img [src]="row.url" alt="admin"></td>
+      <td class="text-center">
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" (click)="showModalRestoreAdmin(row.id)"
+          data-target="#modal-restore"><i class="fas fa-trash-restore"></i></button>
+      </td>
+    </tr>
+
+  </tbody>
+  <tfoot>
+    <tr>
+      <th class="text-center">Stt</th>
+      <th>Tên</th>
+      <th>Email</th>
+      <th>Username</th>
+      <th>Password</th>
+      <th>Avatar</th>
+      <th class="text-center">Action</th>
+    </tr>
+  </tfoot>
+</table>
+<!-- Create Admin Modal -->
+<div id="modal-create" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">
-          {{ admin.id === undefined || admin.id === 0 ? 'Thêm admin' : 'Chỉnh sửa thông tin admin'}}
+          Thêm admin
         </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -122,7 +122,7 @@
 
         <div class="container-fluid">
           <form [formGroup]="form" (ngSubmit)="submitFormEditModal()" class="row" id="myForm" novalidate>
-            <div class="col-sm col-md-8">
+            <div class="col-sm col-md-8" id="flow-input">
               <p class="form-group row">
                 <span class="col-sm col-md-4 text-right">Name</span>
                 <input [(ngModel)]="admin.name" type="text" class="col-sm col-md-8 form-control" formControlName="name"
@@ -140,8 +140,86 @@
               </p>
               <p class="form-group row">
                 <span class="col-sm col-md-4 text-right">Password</span>
-                <input [(ngModel)]="admin.password" type="password" class="col-sm col-md-8 form-control disabled"
-                  formControlName="password" placeholder="Mật khẩu" required disabled />
+                <input [(ngModel)]="admin.password" type="password" id="input-password"
+                  class="col-sm col-md-8 form-control disabled" formControlName="password" placeholder="Mật khẩu"
+                  required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Confirm Password</span>
+                <input [(ngModel)]="admin.confirmPassword" type="password" class="col-sm col-md-8 form-control disabled"
+                  formControlName="confirmPassword" placeholder="Nhập lại mật khẩu" required />
+              </p>
+            </div>
+            <div class="col-sm col-md-4">
+              <div class="row">
+                <p class="mb-0 col" id="imageCreateFrame">
+                  <img [src]="admin.url" alt="avatar" id="img-create-1" class="w-100 rounded img-fluid img-thumbnail" />
+                </p>
+              </div>
+              <div class="row">
+                <div class="col input-group">
+                  <div class="custom-file">
+                    <input type="file" #uploader class="custom-file-input" (change)="onFileSelectCreate($event.target.files)">
+                    <label class="custom-file-label" for="file-input">{{fileChosen}}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- ... -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal"
+          (click)="closeCreateModal($event)">Close</button>
+        <button type="submit" form="myForm" class="btn btn-outline-primary" data-toggle="modal"
+          data-target="#modal-inform">
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Update Admin Modal -->
+<div id="modal-edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+          Chỉnh sửa thông tin admin
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pr-0">
+        <!-- ... -->
+
+        <div class="container-fluid">
+          <form [formGroup]="form" (ngSubmit)="submitFormEditModal()" class="row" id="myForm" novalidate>
+            <div class="col-sm col-md-8" id="flow-input">
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Name</span>
+                <input [(ngModel)]="admin.name" type="text" class="col-sm col-md-8 form-control" formControlName="name"
+                  placeholder="Tên" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Email</span>
+                <input [(ngModel)]="admin.email" type="email" class="col-sm col-md-8 form-control"
+                  formControlName="email" placeholder="Email" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Username</span>
+                <input [(ngModel)]="admin.username" type="text" class="col-sm col-md-8 form-control"
+                  formControlName="username" placeholder="Tên tài khoản" required />
+              </p>
+              <p class="form-group row">
+                <span class="col-sm col-md-4 text-right">Password</span>
+                <input [(ngModel)]="admin.password" type="password" id="input-password"
+                  class="col-sm col-md-8 form-control disabled" formControlName="password" placeholder="Mật khẩu"
+                  required disabled />
               </p>
               <div class="row">
                 <div class="col-md-8 offset-4 text-center">
@@ -153,15 +231,14 @@
             </div>
             <div class="col-sm col-md-4">
               <div class="row">
-                <p class="mb-0 col" id="imageFrame">
-                  <img [src]="admin.url" alt="avatar" id="img-1" class="w-100 rounded img-fluid img-thumbnail" />
+                <p class="mb-0 col" id="imageUpdateFrame">
+                  <img [src]="admin.url" alt="avatar" id="img-update-1" class="w-100 rounded img-fluid img-thumbnail" />
                 </p>
               </div>
               <div class="row">
                 <div class="col input-group">
                   <div class="custom-file">
-                    <input type="file" #uploader class="custom-file-input" id="file-input"
-                      (change)="onFileSelect($event.target.files)">
+                    <input type="file" #uploader class="custom-file-input" (change)="onFileSelect($event.target.files)">
                     <label class="custom-file-label" for="file-input">{{fileChosen}}</label>
                   </div>
                 </div>
@@ -177,7 +254,7 @@
           (click)="closeEditModal($event)">Close</button>
         <button type="submit" form="myForm" class="btn btn-outline-primary" data-toggle="modal"
           data-target="#modal-inform">
-          {{ admin.id === undefined || admin.id === 0 ? 'Save' : 'Update'}}
+          Update
         </button>
       </div>
     </div>
